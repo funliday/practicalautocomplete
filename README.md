@@ -4,10 +4,14 @@
 
 ## Autocomplete 原理
 
-* 依照字母排序
-* 依照使用頻率排序
 * Read times >>>>> write times
 * 時間複雜度
+
+## 使用場景
+
+### 依照字母排序
+
+### 依照使用頻率排序
 
 ## Trie 資料結構 (TODO)
 
