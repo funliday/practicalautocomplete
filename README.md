@@ -1,6 +1,6 @@
 # otocomplete
 
-Autocomplete 就是使用者在輸入文字的時候，server 可以即時回應資料給 client 呈現對應的內容
+指使用者在輸入一個字串的部分內容時，就提供下拉式選單自動推薦相關常用字串供使用者選擇以快速輸入的一項功能特性。
 
 ## Autocomplete 原理
 
@@ -9,7 +9,7 @@ Autocomplete 就是使用者在輸入文字的時候，server 可以即時回應
 * Read times >>>>> write times
 * 時間複雜度
 
-## Trie 資料結構
+## Trie 資料結構 (TODO)
 
 ### 寫入資料時
 
