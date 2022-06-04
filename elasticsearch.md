@@ -51,7 +51,7 @@ ES 的寫入資料其實就是索引 (index) 階段，此處的 Settings 和 Map
 
 在欄位 mapping 時，將需要做 autocomplete 的欄位 (此處為 `name`) 設定索引時的 analyzer 為 `autocomplete_analyzer`，所以以「東京鐵塔」及「東京巨蛋球場」為例，使用一般中文切詞 (如 ik, jieba...等) 及 `autocomplete_analyzer` 會切成不同的 token。
 
-所以「東京鐵塔」使用 `autocomplete_analyzer` 切詞後，有四種關鍵字可以搜尋到它。
+所以「東京鐵塔」使用 `autocomplete_analyzer` 切詞後，有四個 token 可以對應到它。
 
 | 文字 | 一般中文切詞可能的結果 | autocomplete_analyzer |
 | ---- | ------- | ---------- |
@@ -78,6 +78,6 @@ ES 的讀取資料其實就是針對索引做搜尋，會利用索引所寫入�
 }
 ```
 
-搜尋時使用 `keyword` analyzer + filter，`keyword` analyzer 表示不會針對所輸入的關鍵字做切詞，所以輸入「東京」的話，會找到「東京鐵塔」及「東京巨蛋球場」，而輸入「東京巨」的話，只會找到「東京巨蛋球場」。
+搜尋時使用 `keyword` analyzer + filter，`keyword` analyzer 表示不會針對所輸入的關鍵字做切詞，但因為索引已經儲存了所有 edge-ngram 的 token，所以輸入「東京」的話，會找到「東京鐵塔」及「東京巨蛋球場」，而輸入「東京巨」的話，只會找到「東京巨蛋球場」。
 
 而使用 `filter` 可以讓 ES 有 cache 的機會，因為 ES 的 filter 機制不會算分 (score)，所以只要使用者一直搜尋「東京」的話，可以加速搜尋結果的產生，因為此時會將結果存在記憶體裡面，而不用再重新搜尋。
