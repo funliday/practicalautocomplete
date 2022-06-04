@@ -4,7 +4,9 @@ Elasticsearch (以下簡稱 ES) 是一套非常強大的搜尋引擎，而搜尋
 
 edge-ngram analyzer 會將所輸入的文字，從頭到尾利用 ngram 的方式將文字切詞。以「台北101」為例，會切成「台」、「台北」、「台北1」、「台北10」、「台北101」共五個 token。而 autocomplete 原理與 edge-ngram 相同，都是會從頭切到尾，所以 ES 很適合將 edge-ngram 運用在 autocomplete 功能上。
 
-## ES 的 Settings 和 Mappings
+## 寫入資料時
+
+ES 的寫入資料其實就是索引 (index) 階段，此處的 Settings 和 Mappings 設定很重要，會關係到讀取資料時的方式。
 
 ### Settings
 
@@ -54,7 +56,9 @@ edge-ngram analyzer 會將所輸入的文字，從頭到尾利用 ngram 的方�
 | 東京鐵塔 | <ul><li>東京</li><li>鐵塔</li><li>東京鐵塔</li></ul>| <ul><li>東</li><li>東京</li><li>東京鐵</li><li>東京鐵塔</li></ul> |
 | 東京巨蛋球場 | <ul><li>東京</li><li>巨蛋</li><li>球場</li><li>東京巨蛋</li><li>巨蛋球場</li><li>東京巨蛋球場</li></ul>| <ul><li>東</li><li>東京</li><li>東京巨</li><li>東京巨蛋</li><li>東京巨蛋球</li><li>東京巨蛋球場</li></ul> |
 
-## Search
+## 讀取資料時
+
+ES 的讀取資料其實就是針對索引做搜尋，會利用索引所寫入的內容做搜尋。
 
 ```json
 {
