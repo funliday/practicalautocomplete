@@ -49,10 +49,10 @@ edge-ngram analyzer 會將所輸入的文字，從頭到尾利用 ngram 的方�
 
 在欄位 mapping 時，將需要做 autocomplete 的欄位 (此處為 `name`) 設定索引時的 analyzer 為 `autocomplete_analyzer`，所以以「東京鐵塔」及「東京巨蛋球場」為例，使用一般中文切詞及此處的 `autocomplete_analyzer` 會切成不同的 token。
 
-| 一般中文切詞 | autocomplete_analyzer |
-| ------- | ---------- |
-| 東京鐵塔<ul><li>東京</li><li>鐵塔</li><li>東京鐵塔</li></ul>| 東京鐵塔<ul><li>東</li><li>東京</li><li>東京鐵</li><li>東京鐵塔</li></ul> |
-| 東京巨蛋球場<ul><li>東京</li><li>巨蛋</li><li>球場</li><li>東京巨蛋</li><li>巨蛋球場</li><li>東京巨蛋球場</li></ul>| 東京巨蛋球場<ul><li>東</li><li>東京</li><li>東京巨</li><li>東京巨蛋</li><li>東京巨蛋球</li><li>東京巨蛋球場</li></ul> |
+| 文字 | 一般中文切詞 | autocomplete_analyzer |
+| ---- | ------- | ---------- |
+| 東京鐵塔 | <ul><li>東京</li><li>鐵塔</li><li>東京鐵塔</li></ul>| <ul><li>東</li><li>東京</li><li>東京鐵</li><li>東京鐵塔</li></ul> |
+| 東京巨蛋球場 | <ul><li>東京</li><li>巨蛋</li><li>球場</li><li>東京巨蛋</li><li>巨蛋球場</li><li>東京巨蛋球場</li></ul>| <ul><li>東</li><li>東京</li><li>東京巨</li><li>東京巨蛋</li><li>東京巨蛋球</li><li>東京巨蛋球場</li></ul> |
 
 ## Search
 
