@@ -38,3 +38,40 @@
 ## Autocomplete 與 search suggestion 的差異
 
 ## 實作套件
+
+## Elasticsearch
+
+使用 edge-ngram 開發，相關 setting 及 mapping 如下
+
+```json
+{
+  "analysis": {
+    "tokenizer": {
+      "autocomplete_tokenizer": {
+        "type": "edge_ngram",
+        "min_gram": 1,
+        "max_gram": 20
+      }
+    },
+    "analyzer": {
+      "autocomplete_analyzer": {
+        "tokenizer": "autocomplete_tokenizer"
+      }
+    }
+  }
+}
+```
+
+```json
+{
+  "properties": {
+    "name": {
+      "type": "text",
+      "analyzer": "autocomplete_analyzer",
+      "search_analyzer": "keyword"
+    }
+  }
+}
+```
+
+## Redis
