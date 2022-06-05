@@ -11,20 +11,19 @@ ES 的寫入資料其實就是索引 (index) 階段，此處的 Settings 和 Map
 ### Settings
 
 ```json
+// PUT /autocomplete_index/_settings
 {
-  "settings": {
-    "analysis": {
-      "tokenizer": {
-        "autocomplete_tokenizer": {
-          "type": "edge_ngram",
-          "min_gram": 1,
-          "max_gram": 20
-        }
-      },
-      "analyzer": {
-        "autocomplete_analyzer": {
-          "tokenizer": "autocomplete_tokenizer"
-        }
+  "analysis": {
+    "tokenizer": {
+      "autocomplete_tokenizer": {
+        "type": "edge_ngram",
+        "min_gram": 1,
+        "max_gram": 20
+      }
+    },
+    "analyzer": {
+      "autocomplete_analyzer": {
+        "tokenizer": "autocomplete_tokenizer"
       }
     }
   }
@@ -36,14 +35,13 @@ ES 的寫入資料其實就是索引 (index) 階段，此處的 Settings 和 Map
 ### Mappings
 
 ```json
+// PUT /autocomplete_index/_mapping
 {
-  "mappings": {
-    "properties": {
-      "name": {
-        "type": "text",
-        "analyzer": "autocomplete_analyzer",
-        "search_analyzer": "keyword"
-      }
+  "properties": {
+    "name": {
+      "type": "text",
+      "analyzer": "autocomplete_analyzer",
+      "search_analyzer": "keyword"
     }
   }
 }
@@ -58,11 +56,26 @@ ES 的寫入資料其實就是索引 (index) 階段，此處的 Settings 和 Map
 | 東京鐵塔 | <ul><li>東京</li><li>鐵塔</li><li>東京鐵塔</li></ul>| <ul><li>東</li><li>東京</li><li>東京鐵</li><li>東京鐵塔</li></ul> |
 | 東京巨蛋球場 | <ul><li>東京</li><li>巨蛋</li><li>球場</li><li>東京巨蛋</li><li>巨蛋球場</li><li>東京巨蛋球場</li></ul>| <ul><li>東</li><li>東京</li><li>東京巨</li><li>東京巨蛋</li><li>東京巨蛋球</li><li>東京巨蛋球場</li></ul> |
 
+而真正寫入索引的指令如下：
+
+```json
+// POST /autocomplete_index/_doc
+{
+  "name": "東京鐵塔"
+}
+
+// POST /autocomplete_index/_doc
+{
+  "name": "東京巨蛋球場"
+}
+```
+
 ## 讀取資料時
 
 ES 的讀取資料其實就是搜尋 (search) 階段，利用索引所寫入的內容做搜尋，而此處因為索引已經使用 edge-ngram 的方式將 token 寫入，所以只要輸入時的關鍵字有任何一個符合 token 就會找到內容。
 
 ```json
+// GET /autocomplete_index/_search
 {
   "query": {
     "bool": {
@@ -85,6 +98,7 @@ ES 的讀取資料其實就是搜尋 (search) 階段，利用索引所寫入的�
 ### 依照字母長度排序
 
 ```json
+// GET /autocomplete_index/_search
 {
   "query": {
     "bool": {
@@ -112,6 +126,7 @@ ES 的讀取資料其實就是搜尋 (search) 階段，利用索引所寫入的�
 ### 依照使用頻率排序
 
 ```json
+// GET /autocomplete_index/_search
 {
   "query": {
     "bool": {
