@@ -1,33 +1,35 @@
 # Redis
 
-Redis 是一套非常強大的記憶體資料庫，其中包括了 Set, List, Hash 這些大家在開發程式時常用的資料結構，其中有一個稱為 Sorted set 的資料結構，剛好可以運用在 autocomplete 功能上。
+Redis 是一套非常強大的記憶體資料庫，其中包括了 set, list, hash 這些大家在開發程式時常用的資料結構，其中有一個稱為 Sorted set (以下簡稱 zset) 的資料結構，剛好可以運用在 autocomplete 功能上。
 
-顧名思義，Sorted set 其實就是在儲存資料時，會將不重複的資料依照字典排序儲存起來。所以儲存 autocomplete 的資料時，可以直接將資料儲存進去，不用耗費額外的工作。 
+顧名思義，zset 其實就是在儲存資料時，會將不重複的資料依照字典排序儲存起來。所以儲存 autocomplete 的資料時，可以直接將資料儲存進去，不用耗費額外的工作。 
 
 ## 寫入資料時
 
-Sorted set 在寫入資料時，可以要寫入的文字將每一個字切開，以「東京鐵塔」及「東京巨蛋球場」為例，可以切成以下的 token。
+zset 在寫入資料時，可以要寫入的文字將每一個字切開，以「東京鐵塔」及「東京巨蛋球場」為例，可以切成以下的 token。
 
 | 文字 | 結果 |
 | ---- | ---------- |
 | 東京鐵塔 | <ul><li>東</li><li>東京</li><li>東京鐵</li><li>東京鐵塔</li></ul> |
 | 東京巨蛋球場 | <ul><li>東</li><li>東京</li><li>東京巨</li><li>東京巨蛋</li><li>東京巨蛋球</li><li>東京巨蛋球場</li></ul> |
 
-然後使用 `ZADD` 的方式寫入資料
+然後使用 `ZADD` 的方式，將所有的 token 都寫入到 zset 裡面。
 
 ```sh
-ZADD autocomplete_index 0 東
-ZADD autocomplete_index 0 東京
-ZADD autocomplete_index 0 東京鐵
-ZADD autocomplete_index 0 東京鐵塔
-ZADD autocomplete_index 0 東京鐵塔*
-ZADD autocomplete_index 0 東
-ZADD autocomplete_index 0 東京
-ZADD autocomplete_index 0 東京巨
-ZADD autocomplete_index 0 東京巨蛋
-ZADD autocomplete_index 0 東京巨蛋球
-ZADD autocomplete_index 0 東京巨蛋球場*
+1. ZADD autocomplete_index 0 東
+2. ZADD autocomplete_index 0 東京
+3. ZADD autocomplete_index 0 東京鐵
+4. ZADD autocomplete_index 0 東京鐵塔
+5. ZADD autocomplete_index 0 東京鐵塔\x00 # <--- 真正需要搜尋到的結果
+6. ZADD autocomplete_index 0 東 # <--- 資料重複，不會寫入成功
+7. ZADD autocomplete_index 0 東京 # <--- 資料重複，不會寫入成功
+8. ZADD autocomplete_index 0 東京巨
+9. ZADD autocomplete_index 0 東京巨蛋
+10. ZADD autocomplete_index 0 東京巨蛋球
+11. ZADD autocomplete_index 0 東京巨蛋球場\x00 # <--- 真正需要搜尋到的結果
 ```
+
+在寫入時，中間的 `0` 表示這一個資料的分數為 `0`，所以最後排序時會依照資料做字典排序 (lexicographic order)，也就是「先按照第一個字母以升冪排列，如果第一個字母一樣，那麼比較第二個、第三個到最後的字母。如果比到最後兩個單詞不一樣長，那麼把較短者排在前」。
 
 ## 讀取資料時
 
