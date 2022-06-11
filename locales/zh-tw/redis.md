@@ -125,3 +125,5 @@ autocomplete_index:東京巨蛋球場 240 東京巨蛋球場
 ```sh
 ZRANGE autocomplete_index:東京 +INF -INF BYSCORE REV LIMIT 0 50
 ```
+
+## 簡單版及複雜版的讀寫策略比較

@@ -27,3 +27,5 @@
 ## Redis
 
 [詳細原理](./redis.md)
+
+## Elasticsearch 與 Redis 的比較
