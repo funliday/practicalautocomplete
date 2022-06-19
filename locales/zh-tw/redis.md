@@ -136,4 +136,11 @@ ZRANGE autocomplete_index:東京 +INF -INF BYSCORE REV LIMIT 0 50
 |讀取|先使用 `ZRANK` 定位，再使用 `ZRANGE` 取得所需要的筆數，最後再用 regex 過濾不必要的 value，可以使用 lua 開發|直接使用 `ZRANGE` 取得所需要的 value，不用另外使用 regex 過濾|
 |刪除|可以直接使用 `DEL` 刪除所有資料|必須使用 `SCAN` 將資料一批一批的刪除|
 |資料大小 (key prefix 用 `autocomplete_index`，及`東京鐵塔`、`東京巨蛋球場`為例)|68 bytes|242 bytes|
-|總覽|ooo|xxx|
+
+### 總結
+
+1. 為了節省空間：可以使用簡單版的方式開發，但在後端需要花比較多的程式碼做過濾
+2. 使用頻率做排序：一定要用複雜版的方式開發，因為如果用簡單版開發的話，zset 會無法直接排序
+3. 簡單版無法保證取得結果的筆數，因為 `ZRANGE` 會包括其他不必要的內容，所以最後過濾完可能會沒有資料
+4. 如果需要維護資料，必須要有至少一倍額外的儲存空間，在維護時先用不同的 key prefix 寫入，最後再用 `RENAME` 改 key prefix
+  * 如果使用複雜版的話，在 `RENAME` 的過程中會花比較多時間
