@@ -136,3 +136,4 @@ ZRANGE autocomplete_index:東京 +INF -INF BYSCORE REV LIMIT 0 50
 |讀取|先使用 `ZRANK` 定位，再使用 `ZRANGE` 取得所需要的筆數，最後再用 regex 過濾不必要的 value，可以使用 lua 開發|直接使用 `ZRANGE` 取得所需要的 value，不用另外使用 regex 過濾|
 |刪除|可以直接使用 `DEL` 刪除所有資料|必須使用 `SCAN` 將資料一批一批的刪除|
 |資料大小 (以 `東京鐵塔` 及 `東京巨蛋球場` 為例)|58 bytes|232 bytes|
+|總覽|ooo|xxx|
