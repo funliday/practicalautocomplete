@@ -135,5 +135,5 @@ ZRANGE autocomplete_index:東京 +INF -INF BYSCORE REV LIMIT 0 50
 |寫入|寫入時的 value 除了每個關鍵字的 n-gram 之外，還要多加一個完整關鍵字加上分隔符號|寫入時的 Redis key 會加上每個關鍵字的 n-gram，而 value 則是寫入完整的關鍵字|
 |讀取|先使用 `ZRANK` 定位，再使用 `ZRANGE` 取得所需要的筆數，最後再用 regex 過濾不必要的 value，可以使用 lua 開發|直接使用 `ZRANGE` 取得所需要的 value，不用另外使用 regex 過濾|
 |刪除|可以直接使用 `DEL` 刪除所有資料|必須使用 `SCAN` 將資料一批一批的刪除|
-|資料大小 (以 `東京鐵塔` 及 `東京巨蛋球場` 為例)|58 bytes|232 bytes|
+|資料大小 (key prefix 用 `autocomplete_index`，及`東京鐵塔`、`東京巨蛋球場`為例)|68 bytes|242 bytes|
 |總覽|ooo|xxx|
