@@ -32,8 +32,8 @@ autocomplete 是現代軟體服務最重要的功能之一，使用者在輸入�
 
 |比較項目|Elasticsearch|Redis|
 |-------|-------------|-----|
-|寫入|||
-|讀取|||
+|寫入|使用內建的 edge ngram tokenizer 寫入|自行開發類似 edge ngram tokenizer 的演算法寫入|
+|讀取|使用 Elasticsearch 的 filter 讀取|主要使用 ZRANGE 讀取|
 |儲存空間|||
 |儲存成本|||
 
