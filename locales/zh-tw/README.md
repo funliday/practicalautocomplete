@@ -32,10 +32,10 @@ autocomplete 是現代軟體服務最重要的功能之一，使用者在輸入�
 
 |比較項目|Elasticsearch|Redis|
 |-------|-------------|-----|
-|寫入|使用內建的 edge ngram tokenizer 寫入|自行開發類似 edge ngram tokenizer 的演算法寫入|
-|讀取|使用 Elasticsearch 的 filter 讀取|主要使用 ZRANGE 讀取|
-|儲存空間|||
-|儲存成本|||
+|寫入時間|沒比較過|沒比較過|
+|讀取時間|因為儲存在硬碟內，所以相同關鍵字的首次讀取一定比較慢，但讀取時是使用 filter 的方式，所以 Elasticsearch 會將 filtered 的資料儲存在記憶體內，以供後續相同關鍵字使用|因為全都儲存在記憶體內，所以速度整體上一定比較快|
+|儲存空間|在於 edge ngram 的 min ngram 及 max ngram|如果是簡單版的字母排序，儲存量遠比複雜版的少許多|
+|儲存成本|儲存在硬碟內，成本低|儲存在記憶體內，成本高|
 
 ### 總結
 
