@@ -4,6 +4,7 @@ const upath = require('upath');
 const pug = require('pug');
 const sh = require('shelljs');
 const prettier = require('prettier');
+const { marked } = require('marked');
 
 module.exports = function renderPug(filePath) {
   const destPath = filePath
@@ -16,28 +17,71 @@ module.exports = function renderPug(filePath) {
 
   console.log(`### INFO: Rendering ${filePath} to ${destPath}`);
 
-  const html = pug.renderFile(filePath, {
-    doctype: 'html',
-    filename: filePath,
-    basedir: srcPath,
-    locales
-  });
-
   const destPathDirname = upath.dirname(destPath);
 
   if (!sh.test('-e', destPathDirname)) {
     sh.mkdir('-p', destPathDirname);
   }
 
-  const prettified = prettier.format(html, {
-    printWidth: 1000,
-    tabWidth: 4,
-    singleQuote: true,
-    proseWrap: 'preserve',
-    endOfLine: 'lf',
-    parser: 'html',
-    htmlWhitespaceSensitivity: 'ignore'
-  });
+  locales.forEach(locale => {
+    const localePath = upath.resolve(localesPath, locale);
 
-  fs.writeFileSync(destPath, prettified);
+    const localeDestPath = upath.resolve(destPathDirname, 'locales', locale);
+
+    if (!sh.test('-e', localeDestPath)) {
+      sh.mkdir('-p', localeDestPath);
+    }
+
+    const files = fs.readdirSync(localePath);
+
+    files.forEach(file => {
+      let localeFileDestPath;
+
+      if (file === 'README.md') {
+        localeFileDestPath = upath.resolve(localeDestPath, 'index.html');
+      } else {
+        localeFileDestPath = upath.resolve(
+          localeDestPath,
+          file.replace('.md', '.html')
+        );
+      }
+
+      let markdownBody = fs.readFileSync(
+        upath.resolve(localePath, file),
+        'utf-8'
+      );
+
+      markdownBody = markdownBody
+        .split('\n')
+        .map(line => {
+          return `${' '.repeat(24)}${line}`;
+        })
+        .join('\n');
+
+      const pugBody = fs.readFileSync(filePath, 'utf-8');
+
+      const injectMarkdownBody = pugBody.replace(
+        '#{markdownContent}',
+        markdownBody
+      );
+
+      const html = pug.render(injectMarkdownBody, {
+        filename: filePath,
+        basedir: srcPath,
+        locales
+      });
+
+      const prettified = prettier.format(html, {
+        printWidth: 1000,
+        tabWidth: 4,
+        singleQuote: true,
+        proseWrap: 'preserve',
+        endOfLine: 'lf',
+        parser: 'html',
+        htmlWhitespaceSensitivity: 'ignore'
+      });
+
+      fs.writeFileSync(localeFileDestPath, prettified);
+    });
+  });
 };
