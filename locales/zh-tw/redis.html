@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="zh-tw">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="" />
+        <meta name="author" content="" />
+        <title>Redis | Practical Autocomplete</title>
+        <!-- Favicon-->
+        <link rel="icon" type="image/x-icon" href="/assets/favicon.ico" />
+        <!-- Core theme CSS (includes Bootstrap)-->
+        <link href="/css/styles.css" rel="stylesheet" />
+    </head>
+    <body>
+        <div class="d-flex" id="wrapper">
+            <!-- Sidebar-->
+            <div class="border-end bg-white" id="sidebar-wrapper">
+                <div class="sidebar-heading border-bottom bg-light">Practical Autocomplete</div>
+                <div class="list-group list-group-flush">
+                    <a class="list-group-item list-group-item-action list-group-item-light p-3" href="/locales/zh-tw/index.html">Practical autocomplete 簡介</a>
+                    <a class="list-group-item list-group-item-action list-group-item-light p-3" href="/locales/zh-tw/elasticsearch.html">Elasticsearch</a>
+                    <a class="list-group-item list-group-item-action list-group-item-light p-3" href="/locales/zh-tw/redis.html">Redis</a>
+                </div>
+            </div>
+            <!-- Page content wrapper-->
+            <div id="page-content-wrapper">
+                <!-- Top navigation-->
+                <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+                    <div class="container-fluid">
+                        <button class="btn btn-primary" id="sidebarToggle">Toggle Menu</button>
+                        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+                        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                            <ul class="navbar-nav ms-auto mt-2 mt-lg-0">
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Languages</a>
+                                    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown"><a class="dropdown-item" href="/locales/zh-tw">正體中文</a></div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </nav>
+                <!-- Page content-->
+                <div class="container-fluid">
+                    <h1>Redis</h1>
+                    <p>Redis 是一套非常強大的記憶體資料庫，其中包括了 set, list, hash 這些大家在開發程式時常用的資料結構，其中有一個稱為 Sorted set (以下簡稱 zset) 的資料結構，剛好可以運用在 autocomplete 功能上。</p>
+                    <p>顧名思義，zset 其實就是在儲存資料時，會將不重複的資料依照字典排序儲存起來。所以儲存 autocomplete 的資料時，可以直接將資料儲存進去，不用耗費額外的工作。</p>
+                    <h2>切 token</h2>
+                    <p>zset 在寫入資料時，先把要寫入的文字每一個字切開。以「東京鐵塔」及「東京巨蛋球場」為例，可以切成以下的 token。</p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>文字</th>
+                                <th>結果</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>東京鐵塔</td>
+                                <td>&lt;ul&gt;&lt;li&gt;東&lt;/li&gt;&lt;li&gt;東京&lt;/li&gt;&lt;li&gt;東京鐵&lt;/li&gt;&lt;li&gt;東京鐵塔&lt;/li&gt;&lt;/ul&gt;</td>
+                            </tr>
+                            <tr>
+                                <td>東京巨蛋球場</td>
+                                <td>&lt;ul&gt;&lt;li&gt;東&lt;/li&gt;&lt;li&gt;東京&lt;/li&gt;&lt;li&gt;東京巨&lt;/li&gt;&lt;li&gt;東京巨蛋&lt;/li&gt;&lt;li&gt;東京巨蛋球&lt;/li&gt;&lt;li&gt;東京巨蛋球場&lt;/li&gt;&lt;/ul&gt;</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h2>依照字母長度排序 - 簡單版</h2>
+                    <p>這個情境因為不用使用分數 (score)，所以可以使用簡單版的 zset 讀寫策略。</p>
+                    <h3>寫入資料時</h3>
+                    <p>
+                        我們可以使用
+                        <code>ZADD</code>
+                        的方式，將所有的 token 都寫入到 zset 裡面。
+                    </p>
+                    <pre><code class="language-sh">1. ZADD autocomplete_index 0 東
+2. ZADD autocomplete_index 0 東京
+3. ZADD autocomplete_index 0 東京鐵
+4. ZADD autocomplete_index 0 東京鐵塔
+5. ZADD autocomplete_index 0 東京鐵塔\x00
+6. ZADD autocomplete_index 0 東 # &lt;--- 資料重複，不會寫入成功
+7. ZADD autocomplete_index 0 東京 # &lt;--- 資料重複，不會寫入成功
+8. ZADD autocomplete_index 0 東京巨
+9. ZADD autocomplete_index 0 東京巨蛋
+10. ZADD autocomplete_index 0 東京巨蛋球
+11. ZADD autocomplete_index 0 東京巨蛋球場
+12. ZADD autocomplete_index 0 東京巨蛋球場\x00
+</code></pre>
+                    <p>
+                        在寫入時，中間的
+                        <code>0</code>
+                        表示這一個資料的分數為
+                        <code>0</code>
+                        ，所以最後排序時會依照資料做字典排序 (lexicographic order)，也就是「先按照第一個字母以升冪排列，如果第一個字母一樣，那麼比較第二個、第三個到最後的字母。如果比到最後兩個單詞不一樣長，那麼把較短者排在前」，所以最後寫到 zset 的結果會變成下面這樣。
+                    </p>
+                    <pre><code class="language-sh">position = 0 =&gt; 東
+position = 1 =&gt; 東京
+position = 2 =&gt; 東京巨
+position = 3 =&gt; 東京鐵
+position = 4 =&gt; 東京巨蛋
+position = 5 =&gt; 東京鐵塔
+position = 6 =&gt; 東京鐵塔\x00 # &lt;--- 真正需要搜尋到的結果
+position = 7 =&gt; 東京巨蛋球
+position = 8 =&gt; 東京巨蛋球場
+position = 9 =&gt; 東京巨蛋球場\x00 # &lt;--- 真正需要搜尋到的結果
+</code></pre>
+                    <p>
+                        其中 position 6 及 9，在最後方加入了 ASCII 碼的
+                        <code>0x00</code>
+                        ，也就是
+                        <code>NULL</code>
+                        的意思，這可以讓我們在讀取資料時使用。
+                    </p>
+                    <h3>讀取資料時</h3>
+                    <p>
+                        zset 在讀取資料時有兩個步驟，首先當使用者輸入「東京」時，需要先用
+                        <code>ZRANK</code>
+                        將資料取出位置 (position)，此處的結果為
+                        <code>1</code>
+                        。
+                    </p>
+                    <pre><code class="language-sh">position = ZRANK autocomplete_index 東京
+</code></pre>
+                    <p>
+                        另外使用
+                        <code>ZRANGE</code>
+                        從位置
+                        <code>1</code>
+                        開始，往後取若干筆 (此處設定為 50 筆)，最後會取出 position 從 1 到 9 的內容，然後再將結尾有
+                        <code>\x00</code>
+                        的資料取出來，最後就可以輸出「東京鐵塔」及「東京巨蛋球場」了。而如果輸入「東京巨」的話，就可以找到「東京巨蛋球場」。
+                    </p>
+                    <pre><code class="language-sh">ZRANGE autocomplete_index 2 52 # &lt;--- 2 為 1+1，52 為 1+1+50
+</code></pre>
+                    <h2>依照使用頻率排序 - 複雜版</h2>
+                    <p>這個情境因為有外部分數影響，所以我們必須要換另一種方式的 zset 讀寫策略。</p>
+                    <h3>寫入資料時</h3>
+                    <p>
+                        我們一樣是使用
+                        <code>ZADD</code>
+                        的方式，將所有的 token 都寫入到 zset 裡面。但此處因為有分數的關係，所以在寫入資料時可以把 index 的名稱加上 token，另外把分數加上去。
+                    </p>
+                    <pre><code class="language-sh">1. ZADD autocomplete_index:東 100 東京鐵塔
+2. ZADD autocomplete_index:東京 100 東京鐵塔
+3. ZADD autocomplete_index:東京鐵 100 東京鐵塔
+4. ZADD autocomplete_index:東京鐵塔 100 東京鐵塔
+5. ZADD autocomplete_index:東 240 東京巨蛋球場
+6. ZADD autocomplete_index:東京 240 東京巨蛋球場
+7. ZADD autocomplete_index:東京巨 240 東京巨蛋球場
+8. ZADD autocomplete_index:東京巨蛋 240 東京巨蛋球場
+9. ZADD autocomplete_index:東京巨蛋球 240 東京巨蛋球場
+10. ZADD autocomplete_index:東京巨蛋球場 240 東京巨蛋球場
+</code></pre>
+                    <p>
+                        在寫入時，中間的
+                        <code>100</code>
+                        表示這一個資料的分數為
+                        <code>100</code>
+                        ，所以最後排序時會先依照資料的分數做升冪排列，如果分數一樣才做字典排序 (lexicographic order)，所以最後寫到 zset 的結果會變成下面這樣。
+                    </p>
+                    <pre><code class="language-sh"># autocomplete_index:東
+autocomplete_index:東 100 東京鐵塔
+autocomplete_index:東 240 東京巨蛋球場
+
+# autocomplete_index:東京
+autocomplete_index:東京 100 東京鐵塔
+autocomplete_index:東京 240 東京巨蛋球場
+
+# autocomplete_index:東京鐵
+autocomplete_index:東京鐵 100 東京鐵塔
+
+# autocomplete_index:東京鐵塔
+autocomplete_index:東京鐵塔 100 東京鐵塔
+
+# autocomplete_index:東京巨
+autocomplete_index:東京巨 240 東京巨蛋球場
+
+# autocomplete_index:東京巨蛋
+autocomplete_index:東京巨蛋 240 東京巨蛋球場
+
+# autocomplete_index:東京巨蛋球
+autocomplete_index:東京巨蛋球 240 東京巨蛋球場
+
+# autocomplete_index:東京巨蛋球場
+autocomplete_index:東京巨蛋球場 240 東京巨蛋球場
+</code></pre>
+                    <h3>讀取資料時</h3>
+                    <p>
+                        不需先使用
+                        <code>ZRANK</code>
+                        將資料定位，此處直接使用
+                        <code>ZRANGE</code>
+                        就可以取得資料了，但要注意必須要加上
+                        <code>BYSCORE</code>
+                        及
+                        <code>REV</code>
+                        兩個參數，表示必須使用分數 (
+                        <code>BYSCORE</code>
+                        ) 做降冪排序 (
+                        <code>REV</code>
+                        )
+                    </p>
+                    <pre><code class="language-sh">ZRANGE autocomplete_index:東京 +INF -INF BYSCORE REV LIMIT 0 50
+</code></pre>
+                    <h2>簡單版及複雜版的差異</h2>
+                    <p>
+                        無論是依照字母長度排序或是依照使用頻率排序，
+                        <code>複雜版</code>
+                        的資料結構都可以符合這兩種情境，但
+                        <code>複雜版</code>
+                        也有一些維護上的問題，這邊整理一個表格分別描述兩者的差異
+                    </p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>比較項目</th>
+                                <th>簡單版</th>
+                                <th>複雜版</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>寫入</td>
+                                <td>寫入時的 value 除了每個關鍵字的 n-gram 之外，還要多加一個完整關鍵字加上分隔符號</td>
+                                <td>寫入時的 Redis key 會加上每個關鍵字的 n-gram，而 value 則是寫入完整的關鍵字</td>
+                            </tr>
+                            <tr>
+                                <td>讀取</td>
+                                <td>
+                                    先使用
+                                    <code>ZRANK</code>
+                                    定位，再使用
+                                    <code>ZRANGE</code>
+                                    取得所需要的筆數，最後再用 regex 過濾不必要的 value，可以使用 lua 開發
+                                </td>
+                                <td>
+                                    直接使用
+                                    <code>ZRANGE</code>
+                                    取得所需要的 value，不用另外使用 regex 過濾
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>刪除</td>
+                                <td>
+                                    可以直接使用
+                                    <code>DEL</code>
+                                    刪除所有資料
+                                </td>
+                                <td>
+                                    必須使用
+                                    <code>SCAN</code>
+                                    將資料一批一批的刪除
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    資料大小 (key prefix 用
+                                    <code>autocomplete_index</code>
+                                    ，及
+                                    <code>東京鐵塔</code>
+                                    、
+                                    <code>東京巨蛋球場</code>
+                                    為例)
+                                </td>
+                                <td>68 bytes</td>
+                                <td>242 bytes</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3>總結</h3>
+                    <ol>
+                        <li>
+                            為了節省空間：可以使用
+                            <code>簡單版</code>
+                            的方式開發，但在後端需要花比較多的程式碼做前處理 (pre-processing) 及後處理 (post-processing)
+                        </li>
+                        <li>
+                            使用頻率做排序：一定要用
+                            <code>複雜版</code>
+                            的方式開發，因為如果用
+                            <code>簡單版</code>
+                            開發的話，zset 會無法直接排序
+                        </li>
+                        <li>
+                            <code>簡單版</code>
+                            無法保證取得結果的筆數，因為
+                            <code>ZRANGE</code>
+                            會包括其他不必要的內容，所以最後過濾完可能會沒有資料
+                        </li>
+                        <li>
+                            如果需要維護資料，必須要有至少一倍額外的儲存空間，在維護時先用不同的 key prefix 寫入，最後再用
+                            <code>RENAME</code>
+                            改 key prefix
+                            <ul>
+                                <li>
+                                    如果使用
+                                    <code>複雜版</code>
+                                    的話，在
+                                    <code>RENAME</code>
+                                    的過程中會花比較多時間
+                                </li>
+                            </ul>
+                        </li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+        <!-- Bootstrap core JS-->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- Core theme JS-->
+        <script src="/js/scripts.js"></script>
+    </body>
+</html>

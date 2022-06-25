@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh-tw">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="" />
+        <meta name="author" content="" />
+        <title>Practical autocomplete 簡介 | Practical Autocomplete</title>
+        <!-- Favicon-->
+        <link rel="icon" type="image/x-icon" href="/assets/favicon.ico" />
+        <!-- Core theme CSS (includes Bootstrap)-->
+        <link href="/css/styles.css" rel="stylesheet" />
+    </head>
+    <body>
+        <div class="d-flex" id="wrapper">
+            <!-- Sidebar-->
+            <div class="border-end bg-white" id="sidebar-wrapper">
+                <div class="sidebar-heading border-bottom bg-light">Practical Autocomplete</div>
+                <div class="list-group list-group-flush">
+                    <a class="list-group-item list-group-item-action list-group-item-light p-3" href="/locales/zh-tw/index.html">Practical autocomplete 簡介</a>
+                    <a class="list-group-item list-group-item-action list-group-item-light p-3" href="/locales/zh-tw/elasticsearch.html">Elasticsearch</a>
+                    <a class="list-group-item list-group-item-action list-group-item-light p-3" href="/locales/zh-tw/redis.html">Redis</a>
+                </div>
+            </div>
+            <!-- Page content wrapper-->
+            <div id="page-content-wrapper">
+                <!-- Top navigation-->
+                <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+                    <div class="container-fluid">
+                        <button class="btn btn-primary" id="sidebarToggle">Toggle Menu</button>
+                        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+                        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                            <ul class="navbar-nav ms-auto mt-2 mt-lg-0">
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Languages</a>
+                                    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown"><a class="dropdown-item" href="/locales/zh-tw">正體中文</a></div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </nav>
+                <!-- Page content-->
+                <div class="container-fluid">
+                    <h1>Practical autocomplete 簡介</h1>
+                    <p>autocomplete 是現代軟體服務最重要的功能之一，使用者在輸入框輸入了文字，軟體服務就會回傳最適當的選項給使用者，而使用者可以依照回傳的各個選項中選擇其中一個執行動作。</p>
+                    <h2>Autocomplete 原理</h2>
+                    <ul>
+                        <li>Read times &gt;&gt;&gt;&gt;&gt; write times</li>
+                        <li>時間複雜度</li>
+                    </ul>
+                    <h2>UI 的呈現方式</h2>
+                    <h2>相關文章</h2>
+                    <ul>
+                        <li>http://oldblog.antirez.com/post/autocomplete-with-redis.html</li>
+                        <li>https://redis.com/ebook/part-2-core-concepts/chapter-6-application-components-in-redis/6-1-autocomplete/6-1-1-autocomplete-for-recent-contacts/</li>
+                        <li>https://redis.com/ebook/part-2-core-concepts/chapter-6-application-components-in-redis/6-1-autocomplete/6-1-2-address-book-autocomplete/</li>
+                        <li>https://www.prefixbox.com/blog/autocomplete-search/</li>
+                        <li>https://zh.wikipedia.org/wiki/%E8%87%AA%E5%8A%A8%E5%AE%8C%E6%88%90</li>
+                    </ul>
+                    <h2>Autocomplete 與 search suggestion 的差異</h2>
+                    <p>autocomplete 常與 search suggestion 交互使用，這裡將以 prefix 精準比對定義為 autocomplete，以中間的文字比對定義為 search suggestion。</p>
+                    <h2>Elasticsearch</h2>
+                    <p><a href="./elasticsearch.html">詳細原理</a></p>
+                    <h2>Redis</h2>
+                    <p><a href="./redis.html">詳細原理</a></p>
+                    <h2>Elasticsearch 與 Redis 的比較</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>比較項目</th>
+                                <th>Elasticsearch</th>
+                                <th>Redis</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>寫入時間</td>
+                                <td>沒比較過</td>
+                                <td>沒比較過</td>
+                            </tr>
+                            <tr>
+                                <td>讀取時間</td>
+                                <td>因為儲存在硬碟內，所以相同關鍵字的首次讀取一定比較慢，但讀取時是使用 filter 的方式，所以 Elasticsearch 會將 filtered 的資料儲存在記憶體內，以供後續相同關鍵字使用</td>
+                                <td>因為全都儲存在記憶體內，所以速度整體上一定比較快</td>
+                            </tr>
+                            <tr>
+                                <td>儲存空間</td>
+                                <td>在於 edge ngram 的 min ngram 及 max ngram</td>
+                                <td>如果是簡單版的字母排序，儲存量遠比複雜版的少許多</td>
+                            </tr>
+                            <tr>
+                                <td>儲存成本</td>
+                                <td>儲存在硬碟內，成本低</td>
+                                <td>儲存在記憶體內，成本高</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3>總結</h3>
+                    <p>改用 es 的 edge ngram 來實作，要人工介入開發的工作少了很多，包括建 inverted index 跟分詞，最後有扯到 redis 的只剩 city 那一段</p>
+                    <p>另外整體算下來，es 的儲存空間可能會比 redis 要多一些，但這不是我考量的點，因為 es 吃硬碟，redis 吃記憶體，昨天就是因為 redis 太貴而且爆掉，才移到 es。</p>
+                    <p>另外雖然 es 是走硬碟，但因為 query 語法是用 filter，所以曾經被搜過的內容會存記憶體裡面，速度應該不會明顯下降。</p>
+                </div>
+            </div>
+        </div>
+        <!-- Bootstrap core JS-->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- Core theme JS-->
+        <script src="/js/scripts.js"></script>
+    </body>
+</html>
