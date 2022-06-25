@@ -4,6 +4,7 @@ const upath = require('upath');
 const pug = require('pug');
 const sh = require('shelljs');
 const prettier = require('prettier');
+const LOCALES = require('../src/json/locales.json');
 
 module.exports = function renderPug(filePath) {
   const destPath = filePath
@@ -23,6 +24,13 @@ module.exports = function renderPug(filePath) {
   }
 
   locales.forEach(locale => {
+    const currentLocale = Object.entries(LOCALES)
+      .map(entry => ({
+        lang: entry[0],
+        name: entry[1]
+      }))
+      .find(entry => entry.lang === locale);
+
     const localePath = upath.resolve(localesPath, locale);
 
     const localeDestPath = upath.resolve(destPathDirname, 'locales', locale);
@@ -67,7 +75,8 @@ module.exports = function renderPug(filePath) {
       const html = pug.render(injectMarkdownBody, {
         filename: filePath,
         basedir: srcPath,
-        locales
+        currentLocale,
+        LOCALES
       });
 
       const prettified = prettier.format(html, {
