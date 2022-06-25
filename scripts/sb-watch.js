@@ -4,7 +4,7 @@ const _ = require('lodash');
 const chokidar = require('chokidar');
 const upath = require('upath');
 const renderAssets = require('./render-assets');
-const renderPug = require('./render-pug');
+const renderMd = require('./render-md');
 const renderScripts = require('./render-scripts');
 const renderSCSS = require('./render-scss');
 
@@ -46,8 +46,8 @@ function _processFile(filePath, watchEvent) {
 
   console.log(`### INFO: File event: ${watchEvent}: ${filePath}`);
 
-  if (filePath.match(/\.pug$/)) {
-    return _handlePug(filePath, watchEvent);
+  if (filePath.match(/\.md$/)) {
+    return _handleMd(filePath, watchEvent);
   }
 
   if (filePath.match(/\.scss$/)) {
@@ -66,30 +66,30 @@ function _processFile(filePath, watchEvent) {
   }
 }
 
-function _handlePug(filePath, watchEvent) {
+function _handleMd(filePath, watchEvent) {
   if (watchEvent === 'change') {
     if (
       filePath.match(/includes/) ||
       filePath.match(/mixins/) ||
       filePath.match(/\/pug\/layouts\//)
     ) {
-      return _renderAllPug();
+      return _renderAllMd();
     }
-    return renderPug(filePath);
+    return renderMd(filePath);
   }
   if (
     !filePath.match(/includes/) &&
     !filePath.match(/mixins/) &&
     !filePath.match(/\/pug\/layouts\//)
   ) {
-    return renderPug(filePath);
+    return renderMd(filePath);
   }
 }
 
-function _renderAllPug() {
+function _renderAllMd() {
   console.log('### INFO: Rendering All');
   _.each(allPugFiles, (value, filePath) => {
-    renderPug(filePath);
+    renderMd(filePath);
   });
 }
 

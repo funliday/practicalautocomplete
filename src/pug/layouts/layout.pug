@@ -1,0 +1,40 @@
+doctype html
+html(lang=currentLocale.lang)
+
+    head
+        base(href=baseUrl)
+        meta(charset='utf-8')
+        meta(name='viewport', content='width=device-width, initial-scale=1, shrink-to-fit=no')
+        meta(name='description', content='')
+        meta(name='author', content='')
+
+        title #{title} | Practical Autocomplete
+
+        // Favicon
+        link(rel='icon', type='image/x-icon', href='../../assets/favicon.ico')
+
+        // Core theme CSS (includes Bootstrap)
+        link(href='../../css/styles.css', rel='stylesheet')
+
+    body
+
+        #wrapper.d-flex
+
+            // Sidebar
+            include ../include/sidebar
+
+            // Page content wrapper
+            #page-content-wrapper
+
+                // Top navigation
+                include ../include/top-nav
+
+                // Page content
+                #content.container-fluid.p-3
+                    block content
+
+        // Bootstrap core JS
+        script(src='https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js')
+
+        // Core theme JS
+        script(src='../../js/scripts.js')
