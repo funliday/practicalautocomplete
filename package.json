@@ -1,0 +1,19 @@
+{
+  "name": "funliday-practicalautocomplete",
+  "version": "0.0.1",
+  "description": "Autocomplete",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/funliday/practicalautocomplete.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/funliday/practicalautocomplete/issues"
+  },
+  "homepage": "https://github.com/funliday/practicalautocomplete#readme"
+}
