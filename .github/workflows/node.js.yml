@@ -9,6 +9,9 @@ on:
   pull_request:
     branches: [ "master" ]
 
+env:
+  BASE_URL: https://funliday.github.io/practicalautocomplete
+
 jobs:
   build:
 
