@@ -21,39 +21,14 @@ html(lang='en')
         #wrapper.d-flex
 
             // Sidebar
-            #sidebar-wrapper.border-end.bg-white
-                .sidebar-heading.border-bottom.bg-light Start Bootstrap 
-                .list-group.list-group-flush
-                    a.list-group-item.list-group-item-action.list-group-item-light.p-3(href='#!') Dashboard
-                    a.list-group-item.list-group-item-action.list-group-item-light.p-3(href='#!') Shortcuts
-                    a.list-group-item.list-group-item-action.list-group-item-light.p-3(href='#!') Overview
-                    a.list-group-item.list-group-item-action.list-group-item-light.p-3(href='#!') Events
-                    a.list-group-item.list-group-item-action.list-group-item-light.p-3(href='#!') Profile
-                    a.list-group-item.list-group-item-action.list-group-item-light.p-3(href='#!') Status
+            include include/sidebar
 
             // Page content wrapper
             #page-content-wrapper
 
                 // Top navigation
-                nav.navbar.navbar-expand-lg.navbar-light.bg-light.border-bottom
-                    .container-fluid
-                        button#sidebarToggle.btn.btn-primary Toggle Menu
-                        button.navbar-toggler(type='button', data-bs-toggle='collapse', data-bs-target='#navbarSupportedContent', aria-controls='navbarSupportedContent', aria-expanded='false', aria-label='Toggle navigation')
-                            span.navbar-toggler-icon
-                        #navbarSupportedContent.collapse.navbar-collapse
-                            ul.navbar-nav.ms-auto.mt-2.mt-lg-0
-                                li.nav-item.active
-                                    a.nav-link(href='#!') Home 
-                                li.nav-item
-                                    a.nav-link(href='#!') Link
-                                li.nav-item.dropdown
-                                    a#navbarDropdown.nav-link.dropdown-toggle(href='#', role='button', data-bs-toggle='dropdown', aria-haspopup='true', aria-expanded='false')
-                                        | Dropdown
-                                    .dropdown-menu.dropdown-menu-end(aria-labelledby='navbarDropdown')
-                                        a.dropdown-item(href='#!') Action
-                                        a.dropdown-item(href='#!') Another action
-                                        .dropdown-divider
-                                        a.dropdown-item(href='#!') Something else here
+                include include/top-nav
+
                 // Page content
                 .container-fluid
                     h1.mt-4 Simple Sidebar
