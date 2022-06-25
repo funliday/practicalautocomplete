@@ -10,8 +10,7 @@ nav.navbar.navbar-expand-lg.navbar-light.bg-light.border-bottom
                 li.nav-item
                     a.nav-link(href='#!') Link
                 li.nav-item.dropdown
-                    a#navbarDropdown.nav-link.dropdown-toggle(href='#', role='button', data-bs-toggle='dropdown', aria-haspopup='true', aria-expanded='false')
-                        | Languages
+                    a#navbarDropdown.nav-link.dropdown-toggle(href='#', role='button', data-bs-toggle='dropdown', aria-haspopup='true', aria-expanded='false') Languages
                     .dropdown-menu.dropdown-menu-end(aria-labelledby='navbarDropdown')
                         each locale in locales
                             a.dropdown-item(href=`/${locale}`)= locale
