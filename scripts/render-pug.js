@@ -76,8 +76,16 @@ module.exports = function renderPug(filePath) {
         file === 'README.md' ? 'index.html' : file.replace('.md', '.html')
       );
 
-      const markdownBody = fs
-        .readFileSync(upath.resolve(localePath, file), 'utf-8')
+      let markdownBody = fs.readFileSync(
+        upath.resolve(localePath, file),
+        'utf-8'
+      );
+
+      const $ = cheerio.load(md.render(markdownBody));
+
+      const title = $('h1').text();
+
+      markdownBody = markdownBody
         .split('\n')
         .map(line => {
           return `${' '.repeat(24)}${line}`;
@@ -96,7 +104,8 @@ module.exports = function renderPug(filePath) {
         basedir: srcPath,
         currentLocale,
         LOCALES,
-        navLinks
+        navLinks,
+        title
       });
 
       const prettified = prettier.format(html, {
