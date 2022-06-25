@@ -10,7 +10,7 @@ module.exports = function renderPug(filePath) {
     .replace(/src\/pug\//, 'dist/')
     .replace(/\.pug$/, '.html');
   const srcPath = upath.resolve(upath.dirname(__filename), '../src');
-  const localesPath = upath.resolve(srcPath, './pug/locales');
+  const localesPath = upath.resolve(srcPath, './markdown/locales');
 
   const locales = fs.readdirSync(localesPath);
 
