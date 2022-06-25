@@ -26,10 +26,11 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
+    - name: Build
       run: |
         npm ci
         npm run build --if-present
-    - name: Deploy 🚀
+    - name: Deploy
       uses: JamesIves/github-pages-deploy-action@v4.3.3
       with:
         branch: gh-pages # The branch the action should deploy to.
