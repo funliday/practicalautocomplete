@@ -6,7 +6,12 @@ const sh = require('shelljs');
 const prettier = require('prettier');
 const cheerio = require('cheerio');
 const MarkdownIt = require('markdown-it');
+const dotenv = require('dotenv');
 const LOCALES = require('../src/json/locales.json');
+
+dotenv.config();
+
+const BASE_URL = process.env.BASE_URL;
 
 const md = new MarkdownIt();
 
@@ -35,6 +40,11 @@ module.exports = function renderPug(filePath) {
       }))
       .find(entry => entry.lang === locale);
 
+    const baseUrl = new URL(
+      upath.join('locales', currentLocale.lang, '/'),
+      BASE_URL
+    ).toString();
+
     const localePath = upath.resolve(localesPath, locale);
 
     const localeDestPath = upath.resolve(destPathDirname, 'locales', locale);
@@ -48,12 +58,8 @@ module.exports = function renderPug(filePath) {
     const navLinks = [];
 
     files.forEach(file => {
-      const link = upath.join(
-        '/',
-        'locales',
-        locale,
-        file === 'README.md' ? 'index.html' : file.replace('.md', '.html')
-      );
+      const link =
+        file === 'README.md' ? 'index.html' : file.replace('.md', '.html');
 
       const markdownBody = fs.readFileSync(
         upath.resolve(localePath, file),
@@ -105,7 +111,8 @@ module.exports = function renderPug(filePath) {
         currentLocale,
         LOCALES,
         navLinks,
-        title
+        title,
+        baseUrl
       });
 
       const prettified = prettier.format(html, {
