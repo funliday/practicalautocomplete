@@ -48,13 +48,12 @@ module.exports = function renderPug(filePath) {
     const navLinks = [];
 
     files.forEach(file => {
-      let link;
-
-      if (file === 'README.md') {
-        link = upath.join('/', 'locales', locale, 'index.html');
-      } else {
-        link = upath.join('/', 'locales', locale, file.replace('.md', '.html'));
-      }
+      const link = upath.join(
+        '/',
+        'locales',
+        locale,
+        file === 'README.md' ? 'index.html' : file.replace('.md', '.html')
+      );
 
       const markdownBody = fs.readFileSync(
         upath.resolve(localePath, file),
@@ -72,23 +71,13 @@ module.exports = function renderPug(filePath) {
     });
 
     files.forEach(file => {
-      let localeFileDestPath;
-
-      if (file === 'README.md') {
-        localeFileDestPath = upath.resolve(localeDestPath, 'index.html');
-      } else {
-        localeFileDestPath = upath.resolve(
-          localeDestPath,
-          file.replace('.md', '.html')
-        );
-      }
-
-      let markdownBody = fs.readFileSync(
-        upath.resolve(localePath, file),
-        'utf-8'
+      const localeFileDestPath = upath.resolve(
+        localeDestPath,
+        file === 'README.md' ? 'index.html' : file.replace('.md', '.html')
       );
 
-      markdownBody = markdownBody
+      const markdownBody = fs
+        .readFileSync(upath.resolve(localePath, file), 'utf-8')
         .split('\n')
         .map(line => {
           return `${' '.repeat(24)}${line}`;
