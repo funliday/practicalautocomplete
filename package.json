@@ -38,9 +38,11 @@
   "devDependencies": {
     "autoprefixer": "10.4.4",
     "browser-sync": "2.27.9",
+    "cheerio": "^1.0.0-rc.11",
     "chokidar": "3.5.3",
     "concurrently": "6.3.0",
     "jstransformer-markdown-it": "^2.1.0",
+    "markdown-it": "^13.0.1",
     "postcss": "8.4.12",
     "prettier": "2.6.0",
     "pug": "3.0.2",
