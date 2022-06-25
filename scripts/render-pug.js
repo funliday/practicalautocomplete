@@ -4,7 +4,6 @@ const upath = require('upath');
 const pug = require('pug');
 const sh = require('shelljs');
 const prettier = require('prettier');
-const { marked } = require('marked');
 
 module.exports = function renderPug(filePath) {
   const destPath = filePath

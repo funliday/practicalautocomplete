@@ -23,11 +23,11 @@ autocomplete 常與 search suggestion 交互使用，這裡將以 prefix 精準�
 
 ## Elasticsearch
 
-[詳細原理](./elasticsearch.md)
+[詳細原理](./elasticsearch.html)
 
 ## Redis
 
-[詳細原理](./redis.md)
+[詳細原理](./redis.html)
 
 ## Elasticsearch 與 Redis 的比較
 
