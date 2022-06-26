@@ -48,23 +48,23 @@
                     <h1>Redis</h1>
                     <p>Redis is a powerful in-memory database, it includes common structures (set, list, hash) when developing. One of them called Sorted set (zset) can apply to autocomplete feature.</p>
                     <p>Store no duplicate data sort by lexicographic to set, as the name implies. So don't extra work when store autocomplete data.</p>
-                    <h2>切 token</h2>
-                    <p>zset 在寫入資料時，先把要寫入的文字每一個字切開。以「東京鐵塔」及「東京巨蛋球場」為例，可以切成以下的 token。</p>
+                    <h2>tokenize</h2>
+                    <p>Before write text to zset, you must to breaks it up into individual characters. E.g. "house" and "horse" can divide into tokens.</p>
                     <table>
                         <thead>
                             <tr>
-                                <th>文字</th>
-                                <th>結果</th>
+                                <th>Text</th>
+                                <th>Result</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td>東京鐵塔</td>
-                                <td>&lt;ul&gt;&lt;li&gt;東&lt;/li&gt;&lt;li&gt;東京&lt;/li&gt;&lt;li&gt;東京鐵&lt;/li&gt;&lt;li&gt;東京鐵塔&lt;/li&gt;&lt;/ul&gt;</td>
+                                <td>house</td>
+                                <td>&lt;ul&gt;&lt;li&gt;h&lt;/li&gt;&lt;li&gt;ho&lt;/li&gt;&lt;li&gt;hou&lt;/li&gt;&lt;li&gt;hous&lt;/li&gt;&lt;li&gt;house&lt;/li&gt;&lt;/ul&gt;</td>
                             </tr>
                             <tr>
-                                <td>東京巨蛋球場</td>
-                                <td>&lt;ul&gt;&lt;li&gt;東&lt;/li&gt;&lt;li&gt;東京&lt;/li&gt;&lt;li&gt;東京巨&lt;/li&gt;&lt;li&gt;東京巨蛋&lt;/li&gt;&lt;li&gt;東京巨蛋球&lt;/li&gt;&lt;li&gt;東京巨蛋球場&lt;/li&gt;&lt;/ul&gt;</td>
+                                <td>horse</td>
+                                <td>&lt;ul&gt;&lt;li&gt;h&lt;/li&gt;&lt;li&gt;ho&lt;/li&gt;&lt;li&gt;hor&lt;/li&gt;&lt;li&gt;hors&lt;/li&gt;&lt;li&gt;horse&lt;/li&gt;&lt;/ul&gt;</td>
                             </tr>
                         </tbody>
                     </table>
