@@ -1,6 +1,6 @@
 #sidebar-wrapper.border-end.bg-white
     .sidebar-heading.border-bottom.bg-light Practical Autocomplete
     .list-group.list-group-flush
-        a.list-group-item.list-group-item-action.list-group-item-light.p-3(href="index.html") Intro
-        a.list-group-item.list-group-item-action.list-group-item-light.p-3(href="elasticsearch.html") Elasticsearch
-        a.list-group-item.list-group-item-action.list-group-item-light.p-3(href="redis.html") Redis
+        a.list-group-item.list-group-item-action.list-group-item-light.p-3(class=currentPage === "index" ? "active" : "" href="index.html") Intro
+        a.list-group-item.list-group-item-action.list-group-item-light.p-3(class=currentPage === "elasticsearch" ? "active" : "" href="elasticsearch.html") Elasticsearch
+        a.list-group-item.list-group-item-action.list-group-item-light.p-3(class=currentPage === "redis" ? "active" : "" href="redis.html") Redis

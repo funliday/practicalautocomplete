@@ -41,10 +41,6 @@ locales.forEach(locale => {
   const files = fs.readdirSync(localePath);
 
   files.forEach(file => {
-    if (file === 'README.md') {
-      renderMd(file, currentLocale, baseUrl);
-    } else {
-      renderMd(file, currentLocale, baseUrl);
-    }
+    renderMd(file, currentLocale, baseUrl);
   });
 });

@@ -19,7 +19,9 @@ module.exports = function renderMd(filePath, currentLocale, baseUrl) {
     `${filePath}.html`
   );
 
-  console.log(`### INFO: Rendering ${filePath} to ${destPath}`);
+  console.log(
+    `### INFO: Rendering ${filePath} to ${destPath} in ${currentLocale.lang}`
+  );
 
   const pugFilePath = upath.resolve(
     upath.dirname(__dirname),
@@ -67,7 +69,8 @@ module.exports = function renderMd(filePath, currentLocale, baseUrl) {
     currentLocale,
     LOCALES,
     title,
-    baseUrl
+    baseUrl,
+    currentPage: filePath
   });
 
   const prettified = prettier.format(html, {
