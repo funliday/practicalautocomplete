@@ -6,11 +6,11 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
         <meta name="description" content="" />
         <meta name="author" content="" />
-        <title>Elasticsearch | Practical Autocomplete</title>
         <!-- Favicon-->
         <link rel="icon" type="image/x-icon" href="../../assets/favicon.ico" />
         <!-- Core theme CSS (includes Bootstrap)-->
         <link href="../../css/styles.css" rel="stylesheet" />
+        <title>Elasticsearch | Practical Autocomplete</title>
     </head>
     <body>
         <div class="d-flex" id="wrapper">
@@ -53,17 +53,17 @@
                     <h3>Settings</h3>
                     <pre><code class="language-js">// PUT /autocomplete_index/_settings
 {
-  &quot;analysis&quot;: {
-    &quot;tokenizer&quot;: {
-      &quot;autocomplete_tokenizer&quot;: {
-        &quot;type&quot;: &quot;edge_ngram&quot;,
-        &quot;min_gram&quot;: 1,
-        &quot;max_gram&quot;: 20
+  "analysis": {
+    "tokenizer": {
+      "autocomplete_tokenizer": {
+        "type": "edge_ngram",
+        "min_gram": 1,
+        "max_gram": 20
       }
     },
-    &quot;analyzer&quot;: {
-      &quot;autocomplete_analyzer&quot;: {
-        &quot;tokenizer&quot;: &quot;autocomplete_tokenizer&quot;
+    "analyzer": {
+      "autocomplete_analyzer": {
+        "tokenizer": "autocomplete_tokenizer"
       }
     }
   }
@@ -89,11 +89,11 @@
                     <h3>Mappings</h3>
                     <pre><code class="language-js">// PUT /autocomplete_index/_mapping
 {
-  &quot;properties&quot;: {
-    &quot;name&quot;: {
-      &quot;type&quot;: &quot;text&quot;,
-      &quot;analyzer&quot;: &quot;autocomplete_analyzer&quot;,
-      &quot;search_analyzer&quot;: &quot;keyword&quot;
+  "properties": {
+    "name": {
+      "type": "text",
+      "analyzer": "autocomplete_analyzer",
+      "search_analyzer": "keyword"
     }
   }
 }
@@ -136,24 +136,24 @@
                     <p>而真正寫入索引的指令如下：</p>
                     <pre><code class="language-js">// POST /autocomplete_index/_doc
 {
-  &quot;name&quot;: &quot;東京鐵塔&quot;
+  "name": "東京鐵塔"
 }
 
 // POST /autocomplete_index/_doc
 {
-  &quot;name&quot;: &quot;東京巨蛋球場&quot;
+  "name": "東京巨蛋球場"
 }
 </code></pre>
                     <h2>讀取資料時</h2>
                     <p>ES 的讀取資料其實就是搜尋 (search) 階段，利用索引所寫入的內容做搜尋，而此處因為索引已經使用 edge-ngram 的方式將 token 寫入，所以只要輸入時的關鍵字有任何一個符合 token 就會找到內容。</p>
                     <pre><code class="language-js">// GET /autocomplete_index/_search
 {
-  &quot;query&quot;: {
-    &quot;bool&quot;: {
-      &quot;filter&quot;: [
+  "query": {
+    "bool": {
+      "filter": [
         {
-          &quot;term&quot;: {
-            &quot;name&quot;: &quot;東京&quot;
+          "term": {
+            "name": "東京"
           }
         }
       ]
@@ -178,22 +178,22 @@
                     <h3>依照字母長度排序</h3>
                     <pre><code class="language-js">// GET /autocomplete_index/_search
 {
-  &quot;query&quot;: {
-    &quot;bool&quot;: {
-      &quot;filter&quot;: [
+  "query": {
+    "bool": {
+      "filter": [
         {
-          &quot;term&quot;: {
-            &quot;name&quot;: &quot;東京&quot;
+          "term": {
+            "name": "東京"
           }
         }
       ]
     }
   },
-  &quot;sort&quot;: {
-    &quot;_script&quot;: {
-      &quot;script&quot;: &quot;doc['name'].value.length()&quot;,
-      &quot;type&quot;: &quot;number&quot;,
-      &quot;order&quot;: &quot;asc&quot;
+  "sort": {
+    "_script": {
+      "script": "doc['name'].value.length()",
+      "type": "number",
+      "order": "asc"
     }
   }
 }
@@ -202,21 +202,21 @@
                     <h3>依照使用頻率排序</h3>
                     <pre><code class="language-js">// GET /autocomplete_index/_search
 {
-  &quot;query&quot;: {
-    &quot;bool&quot;: {
-      &quot;filter&quot;: [
+  "query": {
+    "bool": {
+      "filter": [
         {
-          &quot;term&quot;: {
-            &quot;name&quot;: &quot;東京&quot;
+          "term": {
+            "name": "東京"
           }
         }
       ]
     }
   },
-  &quot;sort&quot;: [
+  "sort": [
     {
-      &quot;pageview&quot;: {
-        &quot;order&quot;: &quot;desc&quot;
+      "pageview": {
+        "order": "desc"
       }
     }
   ]
