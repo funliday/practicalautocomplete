@@ -1,4 +1,4 @@
-# Practical autocomplete 簡介
+# Autocomplete 簡介
 
 autocomplete 是現代軟體服務最重要的功能之一，使用者在輸入框輸入了文字，軟體服務就會回傳最適當的選項給使用者，而使用者可以依照回傳的各個選項中選擇其中一個執行動作。
 
