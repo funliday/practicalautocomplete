@@ -3,13 +3,10 @@ const upath = require('upath');
 const pug = require('pug');
 const prettier = require('prettier');
 const cheerio = require('cheerio');
-const MarkdownIt = require('markdown-it');
 const dotenv = require('dotenv');
 const LOCALES = require('../src/json/locales.json');
 
 dotenv.config();
-
-const md = new MarkdownIt();
 
 module.exports = function renderMd(filePath, currentLocale, baseUrl) {
   const destPath = upath.resolve(
@@ -31,47 +28,27 @@ module.exports = function renderMd(filePath, currentLocale, baseUrl) {
 
   let pugBody = fs.readFileSync(pugFilePath, 'utf-8');
 
-  const groups = [...pugBody.matchAll(/#\{([-\w]+)\}/g)];
+  pugBody = pugBody.replace(
+    /(include:markdown-it) ([-\w]+.md)/g,
+    `$1 ../markdown/locales/${currentLocale.lang}/${filePath}/$2`
+  );
 
-  let title;
-
-  groups.forEach(group => {
-    const groupName = group[1];
-
-    let markdownBody = fs.readFileSync(
-      upath.resolve(
-        upath.dirname(__dirname),
-        'src/markdown/locales',
-        currentLocale.lang,
-        filePath,
-        `${groupName}.md`
-      ),
-      'utf-8'
-    );
-
-    if (!title) {
-      const $ = cheerio.load(md.render(markdownBody));
-
-      title = $('h1').text() || '';
-    }
-
-    markdownBody = markdownBody
-      .split('\n')
-      .map(line => `${' '.repeat(8)}${line}`)
-      .join('\n');
-
-    pugBody = pugBody.replace(`#{${groupName}}`, markdownBody);
-  });
-
-  const html = pug.render(pugBody, {
+  let html = pug.render(pugBody, {
     filename: pugFilePath,
     basedir: upath.resolve(upath.dirname(__dirname), 'src/pug'),
     currentLocale,
     LOCALES,
-    title,
     baseUrl,
     currentPage: filePath
   });
+
+  const $ = cheerio.load(html);
+
+  const title = $('h1').text();
+
+  $('head').append(`<title>${title} | Practical Autocomplete</title>`);
+
+  html = $.html();
 
   const prettified = prettier.format(html, {
     printWidth: 1000,

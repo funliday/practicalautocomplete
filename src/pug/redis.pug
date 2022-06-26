@@ -1,13 +1,8 @@
 extends layouts/layout
 
 block content
-    :markdown-it
-#{intro}
-    :markdown-it
-#{tokenize}
-    :markdown-it
-#{sort-by-length}
-    :markdown-it
-#{sort-by-freq}
-    :markdown-it
-#{comparison}
+    include:markdown-it intro.md
+    include:markdown-it tokenize.md
+    include:markdown-it sort-by-length.md
+    include:markdown-it sort-by-freq.md
+    include:markdown-it comparison.md
