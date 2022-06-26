@@ -18,19 +18,19 @@
     "elasticsearch",
     "redis"
   ],
-  "homepage": "https://startbootstrap.com/template/simple-sidebar",
+  "homepage": "https://practicalautocomplete.dev/locales/en",
   "bugs": {
-    "url": "https://github.com/StartBootstrap/startbootstrap-simple-sidebar/issues",
-    "email": "feedback@startbootstrap.com"
+    "url": "https://github.com/practicalautocomplete.dev/practicalautocomplete.dev/issues",
+    "email": "cpckewang@gmail.com"
   },
   "license": "MIT",
-  "author": "Start Bootstrap",
+  "author": "Kewang",
   "contributors": [
-    "David Miller (https://davidmiller.io/)"
+    "Kewang (https://github.com/kewang)"
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/funliday/practicalautocomplete.git"
+    "url": "git+https://github.com/practicalautocomplete/practicalautocomplete.git"
   },
   "dependencies": {
     "bootstrap": "5.1.3"
