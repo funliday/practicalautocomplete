@@ -1,6 +1,6 @@
 /*!
-* Start Bootstrap - Practical autocomplete v0.0.1 (https://startbootstrap.com/template/simple-sidebar)
-* Copyright 2013-2022 Start Bootstrap
+* Start Bootstrap - Practical autocomplete v0.0.1 (https://practicalautocomplete.dev/locales/en)
+* Copyright 2013-2022 Kewang
 * Licensed under MIT (https://github.com/StartBootstrap/practical-autocomplete/blob/master/LICENSE)
 */
 // 
