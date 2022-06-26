@@ -1,8 +1,8 @@
-## 切 token
+## tokenize
 
-zset 在寫入資料時，先把要寫入的文字每一個字切開。以「東京鐵塔」及「東京巨蛋球場」為例，可以切成以下的 token。
+Before write text to zset, you must to breaks it up into individual characters. E.g. "house" and "horse" can divide into tokens.
 
-| 文字 | 結果 |
+| Text | Result |
 | ---- | ---------- |
-| 東京鐵塔 | <ul><li>東</li><li>東京</li><li>東京鐵</li><li>東京鐵塔</li></ul> |
-| 東京巨蛋球場 | <ul><li>東</li><li>東京</li><li>東京巨</li><li>東京巨蛋</li><li>東京巨蛋球</li><li>東京巨蛋球場</li></ul> |
+| house | <ul><li>h</li><li>ho</li><li>hou</li><li>hous</li><li>house</li></ul> |
+| horse | <ul><li>h</li><li>ho</li><li>hor</li><li>hors</li><li>horse</li></ul> |
