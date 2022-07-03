@@ -1,12 +1,16 @@
-'use strict';
-
-const _ = require('lodash');
+/* eslint-disable no-console */
 const chokidar = require('chokidar');
 const upath = require('upath');
+const dotenv = require('dotenv');
 const renderAssets = require('./render-assets');
 const renderMd = require('./render-md');
 const renderScripts = require('./render-scripts');
 const renderSCSS = require('./render-scss');
+const LOCALES = require('../src/json/locales.json');
+
+dotenv.config();
+
+const BASE_URL = process.env.BASE_URL;
 
 const watcher = chokidar.watch('src', {
   persistent: true
@@ -16,20 +20,10 @@ let READY = false;
 
 process.title = 'pug-watch';
 process.stdout.write('Loading');
-let allPugFiles = {};
 
-watcher.on('add', filePath => _processFile(upath.normalize(filePath), 'add'));
-watcher.on('change', filePath =>
-  _processFile(upath.normalize(filePath), 'change')
-);
-watcher.on('ready', () => {
-  READY = true;
-  console.log(' READY TO ROLL!');
-});
+const allPugFiles = {};
 
-_handleSCSS();
-
-function _processFile(filePath, watchEvent) {
+const _processFile = (filePath, watchEvent) => {
   if (!READY) {
     if (filePath.match(/\.pug$/)) {
       if (
@@ -40,59 +34,66 @@ function _processFile(filePath, watchEvent) {
         allPugFiles[filePath] = true;
       }
     }
+
     process.stdout.write('.');
+
     return;
   }
 
   console.log(`### INFO: File event: ${watchEvent}: ${filePath}`);
 
   if (filePath.match(/\.md$/)) {
-    return _handleMd(filePath, watchEvent);
+    _handleMd(filePath, watchEvent);
   }
 
   if (filePath.match(/\.scss$/)) {
     if (watchEvent === 'change') {
-      return _handleSCSS(filePath, watchEvent);
+      _handleSCSS(filePath, watchEvent);
     }
+
     return;
   }
 
   if (filePath.match(/src\/js\//)) {
-    return renderScripts();
+    renderScripts();
   }
 
   if (filePath.match(/src\/assets\//)) {
-    return renderAssets();
+    renderAssets();
   }
-}
+};
 
-function _handleMd(filePath, watchEvent) {
-  if (watchEvent === 'change') {
-    if (
-      filePath.match(/includes/) ||
-      filePath.match(/mixins/) ||
-      filePath.match(/\/pug\/layouts\//)
-    ) {
-      return _renderAllMd();
-    }
-    return renderMd(filePath);
+const _handleMd = (filePath, watchEvent) => {
+  if (watchEvent !== 'change') {
+    return;
   }
-  if (
-    !filePath.match(/includes/) &&
-    !filePath.match(/mixins/) &&
-    !filePath.match(/\/pug\/layouts\//)
-  ) {
-    return renderMd(filePath);
-  }
-}
 
-function _renderAllMd() {
-  console.log('### INFO: Rendering All');
-  _.each(allPugFiles, (value, filePath) => {
-    renderMd(filePath);
-  });
-}
+  const parts = filePath.split('/');
 
-function _handleSCSS() {
+  const file = parts[4];
+  const currentLocale = {
+    lang: parts[3],
+    name: LOCALES[parts[3]]
+  };
+  const baseUrl = new URL(
+    upath.join('locales', currentLocale.lang, '/'),
+    BASE_URL
+  ).toString();
+
+  renderMd(file, currentLocale, baseUrl);
+};
+
+const _handleSCSS = () => {
   renderSCSS();
-}
+};
+
+watcher
+  .on('add', filePath => _processFile(upath.normalize(filePath), 'add'))
+  .on('change', filePath => _processFile(upath.normalize(filePath), 'change'))
+  .on('ready', () => {
+    READY = true;
+
+    console.log(' READY TO ROLL!');
+  });
+
+_handleSCSS();
