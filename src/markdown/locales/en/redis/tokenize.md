@@ -1,6 +1,6 @@
 ## tokenize
 
-Before write text to zset, you must to breaks it up into individual characters. E.g. "house" and "horse" can divide into tokens.
+You must to breaks it up into individual characters before write text to zset. E.g. "house" and "horse" can divide into tokens.
 
 | Text | Result |
 | ---- | ---------- |
