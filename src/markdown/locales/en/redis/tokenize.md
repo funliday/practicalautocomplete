@@ -1,4 +1,4 @@
-## tokenize
+## Tokenization
 
 You must to breaks it up into individual characters before write text to zset. E.g. "house" and "horse" can divide into tokens.
 
