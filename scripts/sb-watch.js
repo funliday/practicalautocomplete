@@ -21,20 +21,8 @@ let READY = false;
 process.title = 'pug-watch';
 process.stdout.write('Loading');
 
-const allPugFiles = {};
-
 const _processFile = (filePath, watchEvent) => {
   if (!READY) {
-    if (filePath.match(/\.pug$/)) {
-      if (
-        !filePath.match(/includes/) &&
-        !filePath.match(/mixins/) &&
-        !filePath.match(/\/pug\/layouts\//)
-      ) {
-        allPugFiles[filePath] = true;
-      }
-    }
-
     process.stdout.write('.');
 
     return;
