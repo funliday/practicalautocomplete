@@ -103,7 +103,7 @@
                         <code>name</code>
                         ) 設定索引時的 analyzer 為
                         <code>autocomplete_analyzer</code>
-                        ，所以以「東京鐵塔」及「東京巨蛋球場」為例，使用一般中文切詞 (如 ik, jieba...等) 及
+                        ，所以以「東京鐵塔」及「東京巨蛋球場」為例，使用一般中文切詞 (如 ik, jieba…等) 及
                         <code>autocomplete_analyzer</code>
                         會切成不同的 token。
                     </p>
@@ -112,7 +112,7 @@
                         <code>autocomplete_analyzer</code>
                         切詞後，有四個 token 可以對應到它。
                     </p>
-                    <table>
+                    <table class="table">
                         <thead>
                             <tr>
                                 <th>文字</th>
@@ -123,13 +123,44 @@
                         <tbody>
                             <tr>
                                 <td>東京鐵塔</td>
-                                <td>&lt;ul&gt;&lt;li&gt;東京&lt;/li&gt;&lt;li&gt;鐵塔&lt;/li&gt;&lt;li&gt;東京鐵塔&lt;/li&gt;&lt;/ul&gt;</td>
-                                <td>&lt;ul&gt;&lt;li&gt;東&lt;/li&gt;&lt;li&gt;東京&lt;/li&gt;&lt;li&gt;東京鐵&lt;/li&gt;&lt;li&gt;東京鐵塔&lt;/li&gt;&lt;/ul&gt;</td>
+                                <td>
+                                    <ul>
+                                        <li>東京</li>
+                                        <li>鐵塔</li>
+                                        <li>東京鐵塔</li>
+                                    </ul>
+                                </td>
+                                <td>
+                                    <ul>
+                                        <li>東</li>
+                                        <li>東京</li>
+                                        <li>東京鐵</li>
+                                        <li>東京鐵塔</li>
+                                    </ul>
+                                </td>
                             </tr>
                             <tr>
                                 <td>東京巨蛋球場</td>
-                                <td>&lt;ul&gt;&lt;li&gt;東京&lt;/li&gt;&lt;li&gt;巨蛋&lt;/li&gt;&lt;li&gt;球場&lt;/li&gt;&lt;li&gt;東京巨蛋&lt;/li&gt;&lt;li&gt;巨蛋球場&lt;/li&gt;&lt;li&gt;東京巨蛋球場&lt;/li&gt;&lt;/ul&gt;</td>
-                                <td>&lt;ul&gt;&lt;li&gt;東&lt;/li&gt;&lt;li&gt;東京&lt;/li&gt;&lt;li&gt;東京巨&lt;/li&gt;&lt;li&gt;東京巨蛋&lt;/li&gt;&lt;li&gt;東京巨蛋球&lt;/li&gt;&lt;li&gt;東京巨蛋球場&lt;/li&gt;&lt;/ul&gt;</td>
+                                <td>
+                                    <ul>
+                                        <li>東京</li>
+                                        <li>巨蛋</li>
+                                        <li>球場</li>
+                                        <li>東京巨蛋</li>
+                                        <li>巨蛋球場</li>
+                                        <li>東京巨蛋球場</li>
+                                    </ul>
+                                </td>
+                                <td>
+                                    <ul>
+                                        <li>東</li>
+                                        <li>東京</li>
+                                        <li>東京巨</li>
+                                        <li>東京巨蛋</li>
+                                        <li>東京巨蛋球</li>
+                                        <li>東京巨蛋球場</li>
+                                    </ul>
+                                </td>
                             </tr>
                         </tbody>
                     </table>

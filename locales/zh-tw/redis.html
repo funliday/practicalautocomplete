@@ -50,7 +50,7 @@
                     <p>顧名思義，zset 其實就是在儲存資料時，會將不重複的資料依照字典排序儲存起來。所以儲存 autocomplete 的資料時，可以直接將資料儲存進去，不用耗費額外的工作。</p>
                     <h2>切 token</h2>
                     <p>zset 在寫入資料時，先把要寫入的文字每一個字切開。以「東京鐵塔」及「東京巨蛋球場」為例，可以切成以下的 token。</p>
-                    <table>
+                    <table class="table">
                         <thead>
                             <tr>
                                 <th>文字</th>
@@ -60,11 +60,27 @@
                         <tbody>
                             <tr>
                                 <td>東京鐵塔</td>
-                                <td>&lt;ul&gt;&lt;li&gt;東&lt;/li&gt;&lt;li&gt;東京&lt;/li&gt;&lt;li&gt;東京鐵&lt;/li&gt;&lt;li&gt;東京鐵塔&lt;/li&gt;&lt;/ul&gt;</td>
+                                <td>
+                                    <ul>
+                                        <li>東</li>
+                                        <li>東京</li>
+                                        <li>東京鐵</li>
+                                        <li>東京鐵塔</li>
+                                    </ul>
+                                </td>
                             </tr>
                             <tr>
                                 <td>東京巨蛋球場</td>
-                                <td>&lt;ul&gt;&lt;li&gt;東&lt;/li&gt;&lt;li&gt;東京&lt;/li&gt;&lt;li&gt;東京巨&lt;/li&gt;&lt;li&gt;東京巨蛋&lt;/li&gt;&lt;li&gt;東京巨蛋球&lt;/li&gt;&lt;li&gt;東京巨蛋球場&lt;/li&gt;&lt;/ul&gt;</td>
+                                <td>
+                                    <ul>
+                                        <li>東</li>
+                                        <li>東京</li>
+                                        <li>東京巨</li>
+                                        <li>東京巨蛋</li>
+                                        <li>東京巨蛋球</li>
+                                        <li>東京巨蛋球場</li>
+                                    </ul>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -213,7 +229,7 @@ autocomplete_index:東京巨蛋球場 240 東京巨蛋球場
                         <code>複雜版</code>
                         也有一些維護上的問題，這邊整理一個表格分別描述兩者的差異
                     </p>
-                    <table>
+                    <table class="table">
                         <thead>
                             <tr>
                                 <th>比較項目</th>
