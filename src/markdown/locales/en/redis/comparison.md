@@ -1,18 +1,57 @@
-## 簡單版及複雜版的差異
+## Comparison between simple and complicated version
 
-無論是依照字母長度排序或是依照使用頻率排序，`複雜版`的資料結構都可以符合這兩種情境，但`複雜版`也有一些維護上的問題，這邊整理一個表格分別描述兩者的差異
+Whether sort by length or by frequency, the `complicated` version can be suitable them. But the `complicated` version has some problem (like maintenance)
 
-|比較項目|簡單版|複雜版|
-|---|-----|-----|
-|寫入|寫入時的 value 除了每個關鍵字的 n-gram 之外，還要多加一個完整關鍵字加上分隔符號|寫入時的 Redis key 會加上每個關鍵字的 n-gram，而 value 則是寫入完整的關鍵字|
-|讀取|先使用 `ZRANK` 定位，再使用 `ZRANGE` 取得所需要的筆數，最後再用 regex 過濾不必要的 value，可以使用 lua 開發|直接使用 `ZRANGE` 取得所需要的 value，不用另外使用 regex 過濾|
-|刪除|可以直接使用 `DEL` 刪除所有資料|必須使用 `SCAN` 將資料一批一批的刪除|
-|資料大小 (key prefix 用 `autocomplete_index`，及`東京鐵塔`、`東京巨蛋球場`為例)|68 bytes|242 bytes|
+<table class="table">
+    <thead>
+        <tr>
+            <th>Comparison</th>
+            <th>Simple version</th>
+            <th>Complicated version</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Write data</td>
+            <td>
+                We will write every n-gram of keyword, in addition to add a complete keyword with delimiter
+            </td>
+            <td>
+                When writing, we will append every n-gram of keyword at key tail, and value is complete keyword
+            </td>
+        </tr>
+        <tr>
+            <td>Read data</td>
+            <td>
+                Use <code>ZRANK</code> to indicate position then use <code>ZRANGE</code> to retrieve data, the final step is filter out unnecessary value. It can developed by lua
+            </td>
+            <td>
+                Use <code>ZRANGE</code> to retrieve data directly
+            </td>
+        </tr>
+        <tr>
+            <td>Delete data</td>
+            <td>
+                Use <code>DEL</code> to delete all data
+            </td>
+            <td>
+                Use <code>SCAN</code> iterating to delete data
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Data size (key prefix is <code>autocomplete_index</code>, and data are <code>house</code> and <code>horse</code>)
+            </td>
+            <td>68 bytes</td>
+            <td>242 bytes</td>
+        </tr>
+    </tbody>
+</table>
 
-### 總結
+### Summary
 
-1. 為了節省空間：可以使用`簡單版`的方式開發，但在後端需要花比較多的程式碼做前處理 (pre-processing) 及後處理 (post-processing)
-2. 使用頻率做排序：一定要用`複雜版`的方式開發，因為如果用`簡單版`開發的話，zset 會無法直接排序
-3. `簡單版`無法保證取得結果的筆數，因為 `ZRANGE` 會包括其他不必要的內容，所以最後過濾完可能會沒有資料
-4. 如果需要維護資料，必須要有至少一倍額外的儲存空間，在維護時先用不同的 key prefix 寫入，最後再用 `RENAME` 改 key prefix
-    * 如果使用`複雜版`的話，在 `RENAME` 的過程中會花比較多時間
+1. To save the data storage: Use `simple` version, but more code in the backend in order to pre-processing and post-processing
+2. Sort by frequency: You must use `complicated` version, because if `simple` version can't sort directly.
+3. `Simple` version can't ensure the count of result, because the `ZRANGE` of result includes unnecessary data. It maybe contains no data after filtering.
+4. When maintaining data, redis need more extra 1x data size. The new data use different key prefix when writing. The final step use `RENAME` to rename key prefix.
+    * If you use `complicated` version, it will consume more time when `RENAME` process.
