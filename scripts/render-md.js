@@ -29,7 +29,7 @@ module.exports = function renderMd(filePath, currentLocale, baseUrl) {
   let pugBody = fs.readFileSync(pugFilePath, 'utf-8');
 
   pugBody = pugBody.replace(
-    /(include:markdown-it)(\([\w\s]+\))? ([-\w]+.md)/g,
+    /(include:markdown-it)(\(.*\))? ([-\w]+.md)/g,
     `$1$2 ../markdown/locales/${currentLocale.lang}/${filePath}/$3`
   );
 

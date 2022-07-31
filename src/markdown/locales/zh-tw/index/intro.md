@@ -31,12 +31,37 @@ autocomplete 常與 search suggestion 交互使用，這裡將以 prefix 精準�
 
 ## Elasticsearch 與 Redis 的比較
 
-|比較項目|Elasticsearch|Redis|
-|-------|-------------|-----|
-|寫入時間|沒比較過|沒比較過|
-|讀取時間|因為儲存在硬碟內，所以相同關鍵字的首次讀取一定比較慢，但讀取時是使用 filter 的方式，所以 Elasticsearch 會將 filtered 的資料儲存在記憶體內，以供後續相同關鍵字使用|因為全都儲存在記憶體內，所以速度整體上一定比較快|
-|儲存空間|在於 edge ngram 的 min ngram 及 max ngram|如果是簡單版的字母排序，儲存量遠比複雜版的少許多|
-|儲存成本|儲存在硬碟內，成本低|儲存在記憶體內，成本高|
+<table class="table">
+    <thead>
+        <tr>
+            <th>比較項目</th>
+            <th>Elasticsearch</th>
+            <th>Redis</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <th scope="row">寫入時間</th>
+            <td>沒比較過</td>
+            <td>沒比較過</td>
+        </tr>
+        <tr>
+            <th scope="row">讀取時間</th>
+            <td>因為儲存在硬碟內，所以相同關鍵字的首次讀取一定比較慢，但讀取時是使用 filter 的方式，所以 Elasticsearch 會將 filtered 的資料儲存在記憶體內，以供後續相同關鍵字使用</td>
+            <td>因為全都儲存在記憶體內，所以速度整體上一定比較快</td>
+        </tr>
+        <tr>
+            <th scope="row">儲存空間</th>
+            <td>在於 edge ngram 的 min ngram 及 max ngram</td>
+            <td>如果是簡單版的字母排序，儲存量遠比複雜版的少許多</td>
+        </tr>
+        <tr>
+            <th scope="row">儲存成本</th>
+            <td>儲存在硬碟內，成本低</td>
+            <td>儲存在記憶體內，成本高</td>
+        </tr>
+    </tbody>
+</table>
 
 ### 總結
 
