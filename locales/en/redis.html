@@ -80,239 +80,239 @@
                             </tr>
                         </tbody>
                     </table>
-                    <h2>依照字母長度排序 - 簡單版</h2>
-                    <p>這個情境因為不用使用分數 (score)，所以可以使用簡單版的 zset 讀寫策略。</p>
-                    <h3>寫入資料時</h3>
+                    <h2>Sort by character length - simple version</h2>
+                    <p>Because of the scenario doesn’t use score, can use the simple version of zset r/w strategy.</p>
+                    <h3>Write data</h3>
                     <p>
-                        我們可以使用
+                        To write all tokens to zset, we use
                         <code>ZADD</code>
-                        的方式，將所有的 token 都寫入到 zset 裡面。
+                        .
                     </p>
-                    <pre><code class="language-sh">1. ZADD autocomplete_index 0 東
-2. ZADD autocomplete_index 0 東京
-3. ZADD autocomplete_index 0 東京鐵
-4. ZADD autocomplete_index 0 東京鐵塔
-5. ZADD autocomplete_index 0 東京鐵塔\x00
-6. ZADD autocomplete_index 0 東 # &lt;--- 資料重複，不會寫入成功
-7. ZADD autocomplete_index 0 東京 # &lt;--- 資料重複，不會寫入成功
-8. ZADD autocomplete_index 0 東京巨
-9. ZADD autocomplete_index 0 東京巨蛋
-10. ZADD autocomplete_index 0 東京巨蛋球
-11. ZADD autocomplete_index 0 東京巨蛋球場
-12. ZADD autocomplete_index 0 東京巨蛋球場\x00
+                    <pre><code class="language-sh">1. ZADD autocomplete_index 0 h
+2. ZADD autocomplete_index 0 ho
+3. ZADD autocomplete_index 0 hou
+4. ZADD autocomplete_index 0 hous
+5. ZADD autocomplete_index 0 house
+6. ZADD autocomplete_index 0 house\x00
+7. ZADD autocomplete_index 0 h # &lt;--- duplicated, write data fail
+8. ZADD autocomplete_index 0 ho # &lt;--- duplicated, write data fail
+9. ZADD autocomplete_index 0 hor
+10. ZADD autocomplete_index 0 hors
+11. ZADD autocomplete_index 0 horse
+12. ZADD autocomplete_index 0 horse\x00
 </code></pre>
                     <p>
-                        在寫入時，中間的
+                        The
                         <code>0</code>
-                        表示這一個資料的分數為
+                        in the middle position of command represents the score is
                         <code>0</code>
-                        ，所以最後排序時會依照資料做字典排序 (lexicographic order)，也就是「先按照第一個字母以升冪排列，如果第一個字母一樣，那麼比較第二個、第三個到最後的字母。如果比到最後兩個單詞不一樣長，那麼把較短者排在前」，所以最後寫到 zset 的結果會變成下面這樣。
+                        when writing data. So the arrangement result will sort by lexicographic order. The sort algorithm is order by ascending from head to tail character sequences. The result looks like following.
                     </p>
-                    <pre><code class="language-sh">position = 0 =&gt; 東
-position = 1 =&gt; 東京
-position = 2 =&gt; 東京巨
-position = 3 =&gt; 東京鐵
-position = 4 =&gt; 東京巨蛋
-position = 5 =&gt; 東京鐵塔
-position = 6 =&gt; 東京鐵塔\x00 # &lt;--- 真正需要搜尋到的結果
-position = 7 =&gt; 東京巨蛋球
-position = 8 =&gt; 東京巨蛋球場
-position = 9 =&gt; 東京巨蛋球場\x00 # &lt;--- 真正需要搜尋到的結果
+                    <pre><code class="language-sh">position = 0 =&gt; h
+position = 1 =&gt; ho
+position = 2 =&gt; hou
+position = 3 =&gt; hous
+position = 4 =&gt; house
+position = 5 =&gt; house\x00 # &lt;--- real search result
+position = 6 =&gt; hor
+position = 7 =&gt; hors
+position = 8 =&gt; horse
+position = 9 =&gt; horse\x00 # &lt;--- real search result
 </code></pre>
                     <p>
-                        其中 position 6 及 9，在最後方加入了 ASCII 碼的
+                        The position 6 and 9 add
                         <code>0x00</code>
-                        ，也就是
+                        (ascii code, means
                         <code>NULL</code>
-                        的意思，這可以讓我們在讀取資料時使用。
+                        ) at tail. We can use
+                        <code>0x00</code>
+                        when reading data.
                     </p>
-                    <h3>讀取資料時</h3>
+                    <h3>Read data</h3>
                     <p>
-                        zset 在讀取資料時有兩個步驟，首先當使用者輸入「東京」時，需要先用
+                        It has two steps when reading data from zset. First of you need use
                         <code>ZRANK</code>
-                        將資料取出位置 (position)，此處的結果為
+                        to indicate the position when key-in ‘ho’. The result is
                         <code>1</code>
-                        。
+                        .
                     </p>
-                    <pre><code class="language-sh">position = ZRANK autocomplete_index 東京
+                    <pre><code class="language-sh">position = ZRANK autocomplete_index ho
 </code></pre>
                     <p>
-                        另外使用
-                        <code>ZRANGE</code>
-                        從位置
+                        The second step that reading data from position
                         <code>1</code>
-                        開始，往後取若干筆 (此處設定為 50 筆)，最後會取出 position 從 1 到 9 的內容，然後再將結尾有
+                        to
+                        <code>n</code>
+                        (n is 50 in here) via
+                        <code>ZRANGE</code>
+                        , you can read position from 1 to 9. The final step filter by
                         <code>\x00</code>
-                        的資料取出來，最後就可以輸出「東京鐵塔」及「東京巨蛋球場」了。而如果輸入「東京巨」的話，就可以找到「東京巨蛋球場」。
+                        at tail, and output ‘house’ and ‘horse’. And if you key-in ‘hor’, will output ‘horse’.
                     </p>
-                    <pre><code class="language-sh">ZRANGE autocomplete_index 2 52 # &lt;--- 2 為 1+1，52 為 1+1+50
+                    <pre><code class="language-sh">ZRANGE autocomplete_index 2 52 # &lt;--- 2 is 1+1，52 is 1+1+50
 </code></pre>
-                    <h2>依照使用頻率排序 - 複雜版</h2>
-                    <p>這個情境因為有外部分數影響，所以我們必須要換另一種方式的 zset 讀寫策略。</p>
-                    <h3>寫入資料時</h3>
+                    <h2>Sort by frequency - complicated version</h2>
+                    <p>We need to use another zset r/w strategy because the scenario has external score.</p>
+                    <h3>Write data</h3>
                     <p>
-                        我們一樣是使用
+                        When writing data, we still use
                         <code>ZADD</code>
-                        的方式，將所有的 token 都寫入到 zset 裡面。但此處因為有分數的關係，所以在寫入資料時可以把 index 的名稱加上 token，另外把分數加上去。
+                        to write all tokens to zset. But we add token at index name tail and real score additionally.
                     </p>
-                    <pre><code class="language-sh">1. ZADD autocomplete_index:東 100 東京鐵塔
-2. ZADD autocomplete_index:東京 100 東京鐵塔
-3. ZADD autocomplete_index:東京鐵 100 東京鐵塔
-4. ZADD autocomplete_index:東京鐵塔 100 東京鐵塔
-5. ZADD autocomplete_index:東 240 東京巨蛋球場
-6. ZADD autocomplete_index:東京 240 東京巨蛋球場
-7. ZADD autocomplete_index:東京巨 240 東京巨蛋球場
-8. ZADD autocomplete_index:東京巨蛋 240 東京巨蛋球場
-9. ZADD autocomplete_index:東京巨蛋球 240 東京巨蛋球場
-10. ZADD autocomplete_index:東京巨蛋球場 240 東京巨蛋球場
+                    <pre><code class="language-sh">1. ZADD autocomplete_index:h 100 house
+2. ZADD autocomplete_index:ho 100 house
+3. ZADD autocomplete_index:hou 100 house
+4. ZADD autocomplete_index:hous 100 house
+5. ZADD autocomplete_index:house 100 house
+6. ZADD autocomplete_index:h 240 horse
+7. ZADD autocomplete_index:ho 240 horse
+8. ZADD autocomplete_index:hor 240 horse
+9. ZADD autocomplete_index:hors 240 horse
+10. ZADD autocomplete_index:horse 240 horse
 </code></pre>
                     <p>
-                        在寫入時，中間的
+                        The
                         <code>100</code>
-                        表示這一個資料的分數為
+                        in the middle position of command represents the score is
                         <code>100</code>
-                        ，所以最後排序時會先依照資料的分數做升冪排列，如果分數一樣才做字典排序 (lexicographic order)，所以最後寫到 zset 的結果會變成下面這樣。
+                        when writing data. So the arrangement result will sort by lexicographic order. The sort algorithm is order by ascending from head to tail character sequences. The result looks like following.
                     </p>
-                    <pre><code class="language-sh"># autocomplete_index:東
-autocomplete_index:東 100 東京鐵塔
-autocomplete_index:東 240 東京巨蛋球場
+                    <pre><code class="language-sh"># autocomplete_index:h
+autocomplete_index:h 100 house
+autocomplete_index:h 240 horse
 
-# autocomplete_index:東京
-autocomplete_index:東京 100 東京鐵塔
-autocomplete_index:東京 240 東京巨蛋球場
+# autocomplete_index:ho
+autocomplete_index:ho 100 house
+autocomplete_index:ho 240 horse
 
-# autocomplete_index:東京鐵
-autocomplete_index:東京鐵 100 東京鐵塔
+# autocomplete_index:hou
+autocomplete_index:hou 100 house
 
-# autocomplete_index:東京鐵塔
-autocomplete_index:東京鐵塔 100 東京鐵塔
+# autocomplete_index:hous
+autocomplete_index:hous 100 house
 
-# autocomplete_index:東京巨
-autocomplete_index:東京巨 240 東京巨蛋球場
+# autocomplete_index:house
+autocomplete_index:house 100 house
 
-# autocomplete_index:東京巨蛋
-autocomplete_index:東京巨蛋 240 東京巨蛋球場
+# autocomplete_index:hor
+autocomplete_index:hor 240 horse
 
-# autocomplete_index:東京巨蛋球
-autocomplete_index:東京巨蛋球 240 東京巨蛋球場
+# autocomplete_index:hors
+autocomplete_index:hors 240 horse
 
-# autocomplete_index:東京巨蛋球場
-autocomplete_index:東京巨蛋球場 240 東京巨蛋球場
+# autocomplete_index:horse
+autocomplete_index:horse 240 horse
 </code></pre>
-                    <h3>讀取資料時</h3>
+                    <h3>Read data</h3>
                     <p>
-                        不需先使用
+                        You don’t need
                         <code>ZRANK</code>
-                        將資料定位，此處直接使用
+                        to indicate the position, only use
                         <code>ZRANGE</code>
-                        就可以取得資料了，但要注意必須要加上
+                        can read data. But you need some parameters (
                         <code>BYSCORE</code>
-                        及
+                        and
                         <code>REV</code>
-                        兩個參數，表示必須使用分數 (
-                        <code>BYSCORE</code>
-                        ) 做降冪排序 (
-                        <code>REV</code>
-                        )
+                        ), it represents using score to ordering them.
                     </p>
-                    <pre><code class="language-sh">ZRANGE autocomplete_index:東京 +INF -INF BYSCORE REV LIMIT 0 50
+                    <pre><code class="language-sh">ZRANGE autocomplete_index:ho +INF -INF BYSCORE REV LIMIT 0 50
 </code></pre>
-                    <h2>簡單版及複雜版的差異</h2>
+                    <h2>Comparison between simple and complicated version</h2>
                     <p>
-                        無論是依照字母長度排序或是依照使用頻率排序，
-                        <code>複雜版</code>
-                        的資料結構都可以符合這兩種情境，但
-                        <code>複雜版</code>
-                        也有一些維護上的問題，這邊整理一個表格分別描述兩者的差異
+                        Whether sort by length or by frequency, the
+                        <code>complicated</code>
+                        version can be suitable them. But the
+                        <code>complicated</code>
+                        version has some problem (like maintenance)
                     </p>
-                    <table>
+                    <table class="table">
                         <thead>
                             <tr>
-                                <th>比較項目</th>
-                                <th>簡單版</th>
-                                <th>複雜版</th>
+                                <th>Comparison</th>
+                                <th>Simple version</th>
+                                <th>Complicated version</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td>寫入</td>
-                                <td>寫入時的 value 除了每個關鍵字的 n-gram 之外，還要多加一個完整關鍵字加上分隔符號</td>
-                                <td>寫入時的 Redis key 會加上每個關鍵字的 n-gram，而 value 則是寫入完整的關鍵字</td>
+                                <td>Write data</td>
+                                <td>We will write every n-gram of keyword, in addition to add a complete keyword with delimiter</td>
+                                <td>When writing, we will append every n-gram of keyword at key tail, and value is complete keyword</td>
                             </tr>
                             <tr>
-                                <td>讀取</td>
+                                <td>Read data</td>
                                 <td>
-                                    先使用
+                                    Use
                                     <code>ZRANK</code>
-                                    定位，再使用
+                                    to indicate position then use
                                     <code>ZRANGE</code>
-                                    取得所需要的筆數，最後再用 regex 過濾不必要的 value，可以使用 lua 開發
+                                    to retrieve data, the final step is filter out unnecessary value. It can developed by lua
                                 </td>
                                 <td>
-                                    直接使用
+                                    Use
                                     <code>ZRANGE</code>
-                                    取得所需要的 value，不用另外使用 regex 過濾
+                                    to retrieve data directly
                                 </td>
                             </tr>
                             <tr>
-                                <td>刪除</td>
+                                <td>Delete data</td>
                                 <td>
-                                    可以直接使用
+                                    Use
                                     <code>DEL</code>
-                                    刪除所有資料
+                                    to delete all data
                                 </td>
                                 <td>
-                                    必須使用
+                                    Use
                                     <code>SCAN</code>
-                                    將資料一批一批的刪除
+                                    iterating to delete data
                                 </td>
                             </tr>
                             <tr>
                                 <td>
-                                    資料大小 (key prefix 用
+                                    Data size (key prefix is
                                     <code>autocomplete_index</code>
-                                    ，及
-                                    <code>東京鐵塔</code>
-                                    、
-                                    <code>東京巨蛋球場</code>
-                                    為例)
+                                    , and data are
+                                    <code>house</code>
+                                    and
+                                    <code>horse</code>
+                                    )
                                 </td>
                                 <td>68 bytes</td>
                                 <td>242 bytes</td>
                             </tr>
                         </tbody>
                     </table>
-                    <h3>總結</h3>
+                    <h3>Summary</h3>
                     <ol>
                         <li>
-                            為了節省空間：可以使用
-                            <code>簡單版</code>
-                            的方式開發，但在後端需要花比較多的程式碼做前處理 (pre-processing) 及後處理 (post-processing)
+                            To save the data storage: Use
+                            <code>simple</code>
+                            version, but more code in the backend in order to pre-processing and post-processing
                         </li>
                         <li>
-                            使用頻率做排序：一定要用
-                            <code>複雜版</code>
-                            的方式開發，因為如果用
-                            <code>簡單版</code>
-                            開發的話，zset 會無法直接排序
+                            Sort by frequency: You must use
+                            <code>complicated</code>
+                            version, because if
+                            <code>simple</code>
+                            version can’t sort directly.
                         </li>
                         <li>
-                            <code>簡單版</code>
-                            無法保證取得結果的筆數，因為
+                            <code>Simple</code>
+                            version can’t ensure the count of result, because the
                             <code>ZRANGE</code>
-                            會包括其他不必要的內容，所以最後過濾完可能會沒有資料
+                            of result includes unnecessary data. It maybe contains no data after filtering.
                         </li>
                         <li>
-                            如果需要維護資料，必須要有至少一倍額外的儲存空間，在維護時先用不同的 key prefix 寫入，最後再用
+                            When maintaining data, redis need more extra 1x data size. The new data use different key prefix when writing. The final step use
                             <code>RENAME</code>
-                            改 key prefix
+                            to rename key prefix.
                             <ul>
                                 <li>
-                                    如果使用
-                                    <code>複雜版</code>
-                                    的話，在
+                                    If you use
+                                    <code>complicated</code>
+                                    version, it will consume more time when
                                     <code>RENAME</code>
-                                    的過程中會花比較多時間
+                                    process.
                                 </li>
                             </ul>
                         </li>
