@@ -45,10 +45,58 @@ ES 的寫入資料其實就是索引 (index) 階段，此處的 Settings 和 Map
 
 所以「東京鐵塔」使用 `autocomplete_analyzer` 切詞後，有四個 token 可以對應到它。
 
-| 文字 | 一般中文切詞可能的結果 | autocomplete_analyzer |
-| ---- | ------- | ---------- |
-| 東京鐵塔 | <ul><li>東京</li><li>鐵塔</li><li>東京鐵塔</li></ul>| <ul><li>東</li><li>東京</li><li>東京鐵</li><li>東京鐵塔</li></ul> |
-| 東京巨蛋球場 | <ul><li>東京</li><li>巨蛋</li><li>球場</li><li>東京巨蛋</li><li>巨蛋球場</li><li>東京巨蛋球場</li></ul>| <ul><li>東</li><li>東京</li><li>東京巨</li><li>東京巨蛋</li><li>東京巨蛋球</li><li>東京巨蛋球場</li></ul> |
+<table class="table">
+    <thead>
+        <tr>
+            <th>文字</th>
+            <th>一般中文切詞可能的結果</th>
+            <th>autocomplete_analyzer</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>東京鐵塔</td>
+            <td>
+                <ul>
+                    <li>東京</li>
+                    <li>鐵塔</li>
+                    <li>東京鐵塔</li>
+                </ul>
+            </td>
+            <td>
+                <ul>
+                    <li>東</li>
+                    <li>東京</li>
+                    <li>東京鐵</li>
+                    <li>東京鐵塔</li>
+                </ul>
+            </td>
+        </tr>
+        <tr>
+            <td>東京巨蛋球場</td>
+            <td>
+                <ul>
+                    <li>東京</li>
+                    <li>巨蛋</li>
+                    <li>球場</li>
+                    <li>東京巨蛋</li>
+                    <li>巨蛋球場</li>
+                    <li>東京巨蛋球場</li>
+                </ul>
+            </td>
+            <td>
+                <ul>
+                    <li>東</li>
+                    <li>東京</li>
+                    <li>東京巨</li>
+                    <li>東京巨蛋</li>
+                    <li>東京巨蛋球</li>
+                    <li>東京巨蛋球場</li>
+                </ul>
+            </td>
+        </tr>
+    </tbody>
+</table>
 
 而真正寫入索引的指令如下：
 
