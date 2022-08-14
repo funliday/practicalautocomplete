@@ -43,8 +43,6 @@ ES 的寫入資料其實就是索引 (index) 階段，此處的 Settings 和 Map
 
 在欄位 mapping 時，將需要做 autocomplete 的欄位 (此處為 `name`) 設定索引時的 analyzer 為 `autocomplete_analyzer`，所以以「東京鐵塔」及「東京巨蛋球場」為例，使用一般中文切詞 (如 ik, jieba...等) 及 `autocomplete_analyzer` 會切成不同的 token。
 
-所以「東京鐵塔」使用 `autocomplete_analyzer` 切詞後，有四個 token 可以對應到它。
-
 <table class="table">
     <thead>
         <tr>
