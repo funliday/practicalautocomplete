@@ -46,10 +46,30 @@
                 <!-- Page content-->
                 <div class="container-fluid p-3" id="content">
                     <h1>Elasticsearch</h1>
-                    <p>Elasticsearch (以下簡稱 ES) 是一套非常強大的搜尋引擎，而搜尋最重要的原理就是在於切詞，所以 ES 內建許多切詞器 (analyzer)，其中 edge-ngram analyzer 非常適合用在 autocomplete 功能上。</p>
-                    <p>edge-ngram analyzer 會將所輸入的文字，從頭到尾利用 ngram 的方式將文字切詞。以「台北101」為例，會切成「台」、「台北」、「台北1」、「台北10」、「台北101」共五個 token。而 autocomplete 原理與 edge-ngram 相同，都是會從頭切到尾，所以 ES 很適合將 edge-ngram 運用在 autocomplete 功能上。</p>
-                    <h2>寫入資料時</h2>
-                    <p>ES 的寫入資料其實就是索引 (index) 階段，此處的 Settings 和 Mappings 設定很重要，會關係到讀取資料時的方式。</p>
+                    <p>Elasticsearch is a powerful search engine, and the most important thing is tokenization. So Elasticsearch built in many analyzer (or tokenizer), edge-ngram is the one of many tokenizers that suits in autocomplete feature.</p>
+                    <p>
+                        Edge-ngram analyzer will cut the whole word via ngram. For example,
+                        <code>house</code>
+                        will tokenize
+                        <code>h</code>
+                        ,
+                        <code>ho</code>
+                        ,
+                        <code>hou</code>
+                        ,
+                        <code>hous</code>
+                        ,
+                        <code>house</code>
+                        5 tokens. Autocomplete also cut the whold word, so Elasticsearch and edge-ngrom analyzer very suitable at autocomplete feature.
+                    </p>
+                    <h2>Write data</h2>
+                    <p>
+                        Writing data stage is the index stage of Elasticsearch, and
+                        <code>settings</code>
+                        and
+                        <code>mappings</code>
+                        are very important, they would be related to reading data.
+                    </p>
                     <h3>Settings</h3>
                     <pre><code class="language-js">// PUT /autocomplete_index/_settings
 {
@@ -70,21 +90,21 @@
 }
 </code></pre>
                     <p>
-                        此處表示自訂一個 ES 的 analyzer (
+                        There is a custom Elasticsearch analyzer
                         <code>autocomplete_analyzer</code>
-                        )，而這個 analyzer 有一個自訂的 tokenizer (
-                        <code>autocomplete_tokenizer</code>
-                        )，其中 type 為
+                        , the analyer has one custom (type is
                         <code>edge_ngram</code>
-                        ，並設定最小長度 (
+                        ) tokenizer
+                        <code>autocomplete_tokenizer</code>
+                        , and set
                         <code>min_gram</code>
-                        ) 為
+                        is
                         <code>1</code>
-                        ，最大長度 (
+                        , and
                         <code>max_gram</code>
-                        ) 為
+                        is
                         <code>20</code>
-                        。這樣設定的用意在於一般使用者輸入文字時，應該不會打到 20 個字這麼長，所以為了加速搜尋速度及減少硬碟使用量，設定上限是一個不錯的選擇。
+                        . Limitation of ngram length that when user press keyword length would be less 20, so speed up query and save the hard disk usage, set limitation is a good choice.
                     </p>
                     <h3>Mappings</h3>
                     <pre><code class="language-js">// PUT /autocomplete_index/_mapping
@@ -99,80 +119,92 @@
 }
 </code></pre>
                     <p>
-                        在欄位 mapping 時，將需要做 autocomplete 的欄位 (此處為
+                        When mapping the fields, it needs to set field (
                         <code>name</code>
-                        ) 設定索引時的 analyzer 為
+                        in here) analyzer
                         <code>autocomplete_analyzer</code>
-                        ，所以以「東京鐵塔」及「東京巨蛋球場」為例，使用一般中文切詞 (如 ik, jieba…等) 及
+                        . For example
+                        <code>A black horse</code>
+                        and
+                        <code>A white house</code>
+                        , they are tokenized totally different in classic analyzer and
                         <code>autocomplete_analyzer</code>
-                        會切成不同的 token。
+                        .
                     </p>
-                    <p>
-                        所以「東京鐵塔」使用
-                        <code>autocomplete_analyzer</code>
-                        切詞後，有四個 token 可以對應到它。
-                    </p>
-                    <table>
+                    <table class="table">
                         <thead>
                             <tr>
-                                <th>文字</th>
-                                <th>一般中文切詞可能的結果</th>
+                                <th>Word</th>
+                                <th>classic analyzer</th>
                                 <th>autocomplete_analyzer</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td>東京鐵塔</td>
+                                <td>A black horse</td>
                                 <td>
                                     <ul>
-                                        <li>東京</li>
-                                        <li>鐵塔</li>
-                                        <li>東京鐵塔</li>
+                                        <li>a</li>
+                                        <li>black</li>
+                                        <li>horse</li>
                                     </ul>
                                 </td>
                                 <td>
                                     <ul>
-                                        <li>東</li>
-                                        <li>東京</li>
-                                        <li>東京鐵</li>
-                                        <li>東京鐵塔</li>
+                                        <li>a</li>
+                                        <li>a&nbsp;</li>
+                                        <li>a&nbsp;b</li>
+                                        <li>a&nbsp;bl</li>
+                                        <li>a&nbsp;bla</li>
+                                        <li>a&nbsp;blac</li>
+                                        <li>a&nbsp;black</li>
+                                        <li>a&nbsp;black&nbsp;</li>
+                                        <li>a&nbsp;black&nbsp;h</li>
+                                        <li>a&nbsp;black&nbsp;ho</li>
+                                        <li>a&nbsp;black&nbsp;hor</li>
+                                        <li>a&nbsp;black&nbsp;hors</li>
+                                        <li>a&nbsp;black&nbsp;horse</li>
                                     </ul>
                                 </td>
                             </tr>
                             <tr>
-                                <td>東京巨蛋球場</td>
+                                <td>A white house</td>
                                 <td>
                                     <ul>
-                                        <li>東京</li>
-                                        <li>巨蛋</li>
-                                        <li>球場</li>
-                                        <li>東京巨蛋</li>
-                                        <li>巨蛋球場</li>
-                                        <li>東京巨蛋球場</li>
+                                        <li>a</li>
+                                        <li>white</li>
+                                        <li>house</li>
                                     </ul>
                                 </td>
                                 <td>
                                     <ul>
-                                        <li>東</li>
-                                        <li>東京</li>
-                                        <li>東京巨</li>
-                                        <li>東京巨蛋</li>
-                                        <li>東京巨蛋球</li>
-                                        <li>東京巨蛋球場</li>
+                                        <li>a</li>
+                                        <li>a&nbsp;</li>
+                                        <li>a&nbsp;w</li>
+                                        <li>a&nbsp;wh</li>
+                                        <li>a&nbsp;whi</li>
+                                        <li>a&nbsp;whit</li>
+                                        <li>a&nbsp;white</li>
+                                        <li>a&nbsp;white&nbsp;</li>
+                                        <li>a&nbsp;white&nbsp;h</li>
+                                        <li>a&nbsp;white&nbsp;ho</li>
+                                        <li>a&nbsp;white&nbsp;hou</li>
+                                        <li>a&nbsp;white&nbsp;hous</li>
+                                        <li>a&nbsp;white&nbsp;house</li>
                                     </ul>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
-                    <p>而真正寫入索引的指令如下：</p>
+                    <p>Real writing index commands are</p>
                     <pre><code class="language-js">// POST /autocomplete_index/_doc
 {
-  "name": "東京鐵塔"
+  "name": "A black horse"
 }
 
 // POST /autocomplete_index/_doc
 {
-  "name": "東京巨蛋球場"
+  "name": "A white house"
 }
 </code></pre>
                     <h2>讀取資料時</h2>
