@@ -1,6 +1,6 @@
 ## Comparison between simple and complicated version
 
-Whether sort by length or by frequency, the `complicated` version can be suitable them. But the `complicated` version has some problem (like maintenance)
+Whether sort by length or by frequency, the `complicated` version can be suitable them. But the `complicated` version has some problem (e.g. maintenance)
 
 <table class="table">
     <thead>

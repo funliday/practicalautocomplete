@@ -5,9 +5,6 @@ autocomplete 是現代軟體服務最重要的功能之一，使用者在輸入�
 ## Autocomplete 原理
 
 * Read times >>>>> write times
-* 時間複雜度
-
-## UI 的呈現方式
 
 ## 相關文章
 
@@ -65,8 +62,6 @@ autocomplete 常與 search suggestion 交互使用，這裡將以 prefix 精準�
 
 ### 總結
 
-改用 es 的 edge ngram 來實作，要人工介入開發的工作少了很多，包括建 inverted index 跟分詞，最後有扯到 redis 的只剩 city 那一段
-
-另外整體算下來，es 的儲存空間可能會比 redis 要多一些，但這不是我考量的點，因為 es 吃硬碟，redis 吃記憶體，昨天就是因為 redis 太貴而且爆掉，才移到 es。
-
-另外雖然 es 是走硬碟，但因為 query 語法是用 filter，所以曾經被搜過的內容會存記憶體裡面，速度應該不會明顯下降。
+1. 改用 es 的 edge ngram 來實作，要人工介入開發的工作少了很多，包括建 inverted index 跟分詞
+2. 另外整體算下來，es 的儲存空間可能會比 redis 要多一些，因為 es 吃硬碟，redis 吃記憶體
+3. 另外雖然 es 是走硬碟，但因為 query 語法是用 filter，所以曾經被搜過的內容會存記憶體裡面，速度應該不會明顯下降
