@@ -8,6 +8,8 @@ const LOCALES = require('../src/json/locales.json');
 
 dotenv.config();
 
+const BASE_URL = process.env.BASE_URL;
+
 module.exports = function renderMd(filePath, currentLocale, baseUrl) {
   const destPath = upath.resolve(
     upath.dirname(__dirname),
@@ -15,6 +17,11 @@ module.exports = function renderMd(filePath, currentLocale, baseUrl) {
     currentLocale.lang,
     `${filePath}.html`
   );
+
+  const canonicalUrl = new URL(
+    upath.resolve('/locales', currentLocale.lang, `${filePath}.html`),
+    BASE_URL
+  ).toString();
 
   console.log(
     `### INFO: Rendering ${filePath} to ${destPath} in ${currentLocale.lang}`
@@ -39,7 +46,8 @@ module.exports = function renderMd(filePath, currentLocale, baseUrl) {
     currentLocale,
     LOCALES,
     baseUrl,
-    currentPage: filePath
+    currentPage: filePath,
+    canonicalUrl
   });
 
   const $ = cheerio.load(html);
