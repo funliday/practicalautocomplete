@@ -1,0 +1,9 @@
+<script>
+    const userLang = navigator.language || navigator.userLanguage;
+
+    if (userLang.startsWith("zh")) {
+        window.location.href = "/locales/zh-tw";
+    } else {
+        window.location.href = "/locales/en";
+    }
+</script>
