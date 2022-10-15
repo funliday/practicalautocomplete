@@ -15,6 +15,15 @@ html(lang=currentLocale.lang)
         link(href='../../css/styles.css', rel='stylesheet')
 
         link(rel="canonical" href=canonicalUrl)
+
+        //- Google tag (gtag.js)
+        script(async src="https://www.googletagmanager.com/gtag/js?id=G-RBKJXWFW03")
+        script.
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            gtag('config', 'G-RBKJXWFW03');
     body
 
         #wrapper.d-flex
